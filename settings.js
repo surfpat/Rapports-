@@ -21,6 +21,7 @@ function renderSettings(v){
             </div>
           </div>
         </div>
+        ${renderSyncPanelHTML()}
         <div class="panel">
           <div class="panel-h"><h2>Zone sensible</h2></div>
           <div class="panel-b" style="padding-top:14px">
@@ -102,6 +103,9 @@ function renderSettings(v){
       render(); toast('Toutes les données ont été effacées.', true);
     });
   };
+
+  // Panneau Synchronisation cloud (sync.js)
+  bindSyncPanel(v);
 }
 
 /* ---------- 15. Démarrage ---------- */

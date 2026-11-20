@@ -57,8 +57,8 @@ function batteriesFieldsetHTML(r){
     <fieldset class="fs"><legend>Mesures batteries — autonomie (NF S 61-930)</legend>
       <p class="hint" style="margin-bottom:10px">
         <b>Protocole (NF S 61-930) :</b> couper le secteur, relever le <b>courant absorbé</b> et la <b>tension au début (t0)</b>,
-        puis la <b>tension après 1 h</b>. L'autonomie estimée et la capacité restante sont calculées automatiquement
-        (table indicative bloc 12 V plomb) et comparées à l'autonomie requise. Se référer aux tables constructeur
+        puis la <b>tension après 1 h</b>. L’autonomie estimée et la capacité restante sont calculées automatiquement
+        (table indicative bloc 12 V plomb) et comparées à l’autonomie requise. Se référer aux tables constructeur
         pour un contrôle certifié.
       </p>
       <div id="batteriesBox">${rows.map(b => batteryRowHTML(b)).join('')}</div>
@@ -140,12 +140,18 @@ function wireBatteryRow(row){
 /* ---------- Câblage & collecte ---------- */
 function wireReportRows(){
   // Les lignes batteries (le matériel concerné & tests est câblé dans reportform.js)
+  // La section batteries peut ne pas être rendue (pas de matériel à batterie) →
+  // on vérifie l'existence de #addBattery avant de le câbler.
   modalBox.querySelectorAll('.batRow').forEach(wireBatteryRow);
-  modalBox.querySelector('#addBattery').onclick = () => {
-    const box = modalBox.querySelector('#batteriesBox');
-    box.insertAdjacentHTML('beforeend', batteryRowHTML());
-    wireBatteryRow(box.lastElementChild);
-  };
+  const addBtn = modalBox.querySelector('#addBattery');
+  if(addBtn){
+    addBtn.onclick = () => {
+      const box = modalBox.querySelector('#batteriesBox');
+      if(!box) return;
+      box.insertAdjacentHTML('beforeend', batteryRowHTML());
+      wireBatteryRow(box.lastElementChild);
+    };
+  }
 }
 
 // Collecte du matériel concerné & tests depuis les lignes unifiées (#f_eqBox)
