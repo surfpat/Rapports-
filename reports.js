@@ -87,6 +87,12 @@ function reportSheetHTML(r){
       <tr><th>Type</th><td>${esc(REPORT_TYPES[r.type]||'')}</td><th>Date</th><td>${fmtDate(r.date)}</td><th>Technicien</th><td>${esc(r.tech||'')}</td></tr>
       <tr><th>Objet</th><td colspan="5">${esc(reportObjet(r))}</td></tr>
     </table>
+    <div class="rp-sec"><h3>Matériel concerné & tests</h3>
+      ${tests.length ? `<table class="rp-pieces">
+        <tr><th>Matériel</th><th style="width:90px">Résultat</th><th>Observation</th></tr>
+        ${tests.map(t => `<tr><td>${esc(t.label)||'—'}</td>${resCell(t.res)}<td>${esc(t.note)||'—'}</td></tr>`).join('')}
+      </table>` : '<p>Aucun matériel concerné.</p>'}
+    </div>
     <div class="rp-sec"><h3>Observations / constat</h3><p>${esc(r.obs) || '—'}</p></div>
     <div class="rp-sec"><h3>Anomalies constatées</h3><p>${esc(r.anomalies) || 'Aucune anomalie relevée.'}</p></div>
     <div class="rp-sec"><h3>Actions réalisées</h3><p>${esc(r.actions) || '—'}</p></div>
@@ -96,21 +102,14 @@ function reportSheetHTML(r){
         ${pieces.map(p => `<tr><td>${esc(p.d)}</td><td>${esc(p.r||'—')}</td><td>${esc(p.q||'—')}</td></tr>`).join('')}
       </table>` : '<p>Aucune pièce remplacée.</p>'}
     </div>
-    <div class="rp-sec"><h3>Matériel testé</h3>
-      ${tests.length ? `<table class="rp-pieces">
-        <tr><th>Matériel testé</th><th style="width:90px">Résultat</th><th>Observation</th></tr>
-        ${tests.map(t => `<tr><td>${esc(t.label)||'—'}</td>${resCell(t.res)}<td>${esc(t.note)||'—'}</td></tr>`).join('')}
-      </table>` : '<p>Aucun matériel testé.</p>'}
-    </div>
-        <div class="rp-sec"><h3>Mesures batteries</h3>
+    <div class="rp-sec"><h3>Mesures batteries</h3>
       ${batteries.length ? `<table class="rp-pieces">
-        <tr><th>Matériel</th><th>Batteries</th><th>Charge (U / I)</th><th>Test (I absorbée · U t0 → t+1 h)</th><th>Capacité restante / autonomie</th><th>Résultat</th><th>Observation</th></tr>
+        <tr><th>Matériel</th><th>Batterie</th><th>Mesures (I · U t0→1 h)</th><th>Autonomie / capacité</th><th>Résultat</th><th>Observation</th></tr>
         ${batteries.map(b => {
-          const chargeTxt = [b.vch ? b.vch + ' V' : '', b.ich ? b.ich + ' A' : ''].filter(Boolean).join(' / ') || '—';
-          const batTxt = [b.bat, b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
+          const batTxt = [b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
           const testTxt = [b.iabs ? 'I ' + b.iabs + ' A' : '', (b.ut0 || b.ut1) ? (b.ut0||'?') + ' → ' + (b.ut1||'?') + ' V' : ''].filter(Boolean).join(' · ') || '—';
-          const capTxt = [b.cmes ? b.cmes + ' % restant' : '', b.aut ? b.aut + ' h autonomie' : '', b.q1h ? b.q1h + ' Ah consommés (1 h)' : ''].filter(Boolean).join(' · ') || '—';
-          return `<tr><td>${esc(b.mat)||'—'}</td><td>${esc(batTxt)}</td><td>${esc(chargeTxt)}</td><td>${esc(testTxt)}</td><td>${esc(capTxt)}</td>${resCell(b.res)}<td>${esc(b.note)||'—'}</td></tr>`;
+          const capTxt = [b.aut ? b.aut + ' h' : '', b.areq ? '/ ' + b.areq + ' h requis' : '', b.cmes ? '· ' + b.cmes + ' % restant' : ''].filter(Boolean).join(' ') || '—';
+          return `<tr><td>${esc(b.mat)||'—'}</td><td>${esc(batTxt)}</td><td>${esc(testTxt)}</td><td>${esc(capTxt)}</td>${resCell(b.res)}<td>${esc(b.note)||'—'}</td></tr>`;
         }).join('')}
       </table>` : '<p>Aucune mesure de batterie relevée.</p>'}
     </div>

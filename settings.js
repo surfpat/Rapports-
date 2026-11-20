@@ -64,7 +64,9 @@ function renderSettings(v){
         const d = JSON.parse(rd.result);
         if(!d || !Array.isArray(d.sites) || !Array.isArray(d.equipment)) throw new Error('format');
         state = {
-          sites:d.sites, buildings:d.buildings||[], equipment:d.equipment,
+          sites:d.sites,
+          buildings: Array.isArray(d.buildings) ? d.buildings : [],
+          equipment:d.equipment,
           reports:Array.isArray(d.reports) ? d.reports : [],
           catalog:Array.isArray(d.catalog) ? d.catalog : [],
         };
@@ -103,7 +105,18 @@ function renderSettings(v){
 }
 
 /* ---------- 15. Démarrage ---------- */
-if(!load()) seedDemo();
-render();
+try{
+  if(!load()) seedDemo();
+  render();
+}catch(e){
+  const v = document.getElementById('view');
+  const msg = String((e && e.message) || e)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if(v) v.innerHTML = '<div class="empty" style="padding:60px 20px"><b>Erreur au démarrage</b>'
+    + '<p style="color:#c1272d;font-family:monospace;font-size:12px;white-space:pre-wrap;text-align:left">' + msg + '</p>'
+    + '<p>Rechargez la page. Si le problème persiste, ouvrez la console (F12) '
+    + 'ou tapez <code>localStorage.clear()</code> dans la console puis rechargez.</p></div>';
+  console.error('Firewise startup error:', e);
+}
 
 /* ===== FIN DE settings.js ===== */

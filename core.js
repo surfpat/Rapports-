@@ -17,7 +17,7 @@ function esc(s){
 const todayISO = () => new Date().toISOString().slice(0,10);
 function fmtDate(iso){
   if(!iso) return '—';
-  const [y,m,d] = iso.split('-');
+  const [y,m,d] = String(iso).split('T')[0].split('-');
   return d ? `${d}/${m}/${y}` : iso;
 }
 function slug(s){
@@ -114,8 +114,11 @@ let state = { sites:[], buildings:[], equipment:[], reports:[], catalog:[] };
 let ui = { view:'dashboard', siteId:null, buildingId:null, reportId:null, q:'', typeFilter:'' };
 
 function save(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-  catch(e){ toast('Impossible d’enregistrer : espace de stockage local saturé.'); }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); return true; }
+  catch(e){
+    toast('Enregistrement impossible : stockage local saturé. La modification ne sera pas conservée après rechargement — exportez une sauvegarde JSON puis nettoyez les photos.');
+    return false;
+  }
 }
 function load(){
   try{
@@ -204,6 +207,9 @@ function seedDemo(){
     id:uid(), no:'RPT-' + today.getFullYear() + '-0001', type:'maintenance',
     date:dISO(new Date(today.getTime() - 6*864e5)), tech:'P. Morel', linkMode:'base',
     siteId:s2, buildingId:b4, equipmentId:state.equipment[6].id,
+    equipmentIds:[state.equipment[6].id],
+    equipmentList:['Centrale de détection incendie (CDS) Bosch FPA-1200-U4 (NS FC-90214) — Usine Nord — Logistique · Local CMCF / technique · Local CMCF'],
+    tests:[{ eqId:state.equipment[6].id, label:eqFullLabel(state.equipment[6]), res:'conforme', note:'Boucles 1 à 4 testées, sensibilités conformes. Alimentation secourue vérifiée.' }],
     siteName:'Usine Nord — Logistique', buildingName:'Local CMCF / technique',
     equipmentDesc:'Centrale de détection incendie (CDS) Bosch FPA-1200-U4 (NS FC-90214)',
     obs:'Contrôle annuel de la centrale de détection : niveaux de sensibilité, tests de boucles, vérification de l’alimentation secourue et des reports au CMSI.',
@@ -212,7 +218,7 @@ function seedDemo(){
     pieces:[{d:'Détecteur de fumée Apollo Série 65', r:'55000-328', q:'1'}],
     reco:'Planifier le remplacement des détecteurs de la boucle 3 lors de la prochaine visite semestrielle.',
     nextVisit:dISO(new Date(today.getTime() + 180*864e5)),
-    sigTech:fakeSig('P. Morel'), sigClient:fakeSig('Laurent'), createdAt:Date.now(),
+    sigTech:fakeSig('P. Morel'), sigClient:fakeSig('M. Diallo'), createdAt:Date.now(),
   }];
   save();
 }

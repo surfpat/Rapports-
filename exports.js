@@ -74,9 +74,9 @@ function exportDOCX(reportId){
   const testedTable = new D.Table({
     width: { size: 100, type: D.WidthType.PERCENTAGE },
     rows: [
-      new D.TableRow({ tableHeader: true, children: [cell('Matériel testé', { head:true }), cell('Résultat', { head:true, w:18 }), cell('Observation', { head:true })] }),
+      new D.TableRow({ tableHeader: true, children: [cell('Matériel', { head:true }), cell('Résultat', { head:true, w:18 }), cell('Observation', { head:true })] }),
       ...(tests.length ? tests.map(t => new D.TableRow({ children: [cell(t.label), cell(TEST_RESULTS[t.res]||'—'), cell(t.note)] }))
-        : [new D.TableRow({ children: [cell('Aucun matériel testé'), cell(''), cell('')] })]),
+        : [new D.TableRow({ children: [cell('Aucun matériel concerné'), cell(''), cell('')] })]),
     ],
   });
 
@@ -84,23 +84,21 @@ function exportDOCX(reportId){
     width: { size: 100, type: D.WidthType.PERCENTAGE },
     rows: [
       new D.TableRow({ tableHeader: true, children: [
-        cell('Matériel', { head:true }), cell('Batteries', { head:true }),
-        cell('Charge (U / I)', { head:true, w:12 }),
-        cell('Test (I absorbée · U t0→t1h)', { head:true, w:16 }),
-        cell('Capacité restante / autonomie', { head:true, w:16 }),
+        cell('Matériel', { head:true }), cell('Batterie', { head:true, w:14 }),
+        cell('Mesures (I · U t0→1h)', { head:true, w:18 }),
+        cell('Autonomie / capacité', { head:true, w:18 }),
         cell('Résultat', { head:true, w:13 }),
         cell('Observation', { head:true }),
       ]}),
       ...(batteries.length ? batteries.map(b => {
-        const chargeTxt = [b.vch ? b.vch + ' V' : '', b.ich ? b.ich + ' A' : ''].filter(Boolean).join(' / ') || '—';
-        const batTxt = [b.bat, b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
+        const batTxt = [b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
         const testTxt = [b.iabs ? 'I ' + b.iabs + ' A' : '', (b.ut0 || b.ut1) ? (b.ut0||'?') + ' → ' + (b.ut1||'?') + ' V' : ''].filter(Boolean).join(' · ') || '—';
-        const capTxt = [b.cmes ? b.cmes + ' % restant' : '', b.aut ? b.aut + ' h autonomie' : '', b.q1h ? b.q1h + ' Ah consommés (1 h)' : ''].filter(Boolean).join(' · ') || '—';
+        const capTxt = [b.aut ? b.aut + ' h' : '', b.areq ? '/ ' + b.areq + ' h requis' : '', b.cmes ? '· ' + b.cmes + ' %' : ''].filter(Boolean).join(' ') || '—';
         return new D.TableRow({ children: [
-          cell(b.mat), cell(batTxt), cell(chargeTxt), cell(testTxt), cell(capTxt),
+          cell(b.mat), cell(batTxt), cell(testTxt), cell(capTxt),
           cell(BATTERY_RESULTS[b.res]||'Non testé'), cell(b.note),
         ]});
-      }) : [new D.TableRow({ children: [cell('Aucune mesure relevée'), cell(''), cell(''), cell(''), cell(''), cell(''), cell('')] })]),
+      }) : [new D.TableRow({ children: [cell('Aucune mesure relevée'), cell(''), cell(''), cell(''), cell(''), cell('')] })]),
     ],
   });
 
@@ -114,11 +112,11 @@ function exportDOCX(reportId){
       new D.TableRow({ children: [cell('Date', { head:true, w:16 }), cell(fmtDate(r.date), { w:34 }), cell('Technicien', { head:true, w:16 }), cell(r.tech, { w:34 })] }),
       new D.TableRow({ children: [cell('Objet', { head:true, w:16 }), cell(reportObjet(r))] }),
     ]}),
+    sec('Matériel concerné & tests'), testedTable,
     sec('Observations / constat'), para(r.obs),
     sec('Anomalies constatées'), para(r.anomalies || 'Aucune anomalie relevée.'),
     sec('Actions réalisées'), para(r.actions),
     sec('Pièces remplacées'), piecesTable,
-    sec('Matériel testé'), testedTable,
     sec('Mesures batteries'), batteriesTable,
     sec('Recommandations'), para(r.reco),
     sec('Prochaine visite'), para(r.nextVisit ? fmtDate(r.nextVisit) : 'Non planifiée.'),

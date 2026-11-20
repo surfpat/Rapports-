@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#202226">
+<title>Firewise — Equipment Care</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23c1272d'/><path d='M12 3.2c2.6 3.1 4.4 5.4 4.4 8A5 5 0 0 1 7.6 12c0-1.2.35-2.3 1.05-3.4.45 1.05 1.15 1.75 2.1 2.1-.3-2.9.4-5.2 3.25-7.5z' fill='white'/></svg>">
+<style>
+/* ============ 1. FONDATIONS ============ */
+:root{
+  --bg:#f2f1ef;          --panel:#ffffff;
+  --line:#d9d6d2;        --line-2:#c4c1bc;   --line-3:#a9a5a0;
+  --ink:#1e2022;         --ink-2:#5c6064;    --ink-3:#8f9296;
+  --accent:#c1272d;      --accent-dk:#9c1f24;
+  --ok:#2e7d4f;          --warn:#a86a08;     --bad:#c1272d;
+  --side:#202226;        --side-2:#2b2e33;   --side-ink:#d9d8d6;
+  --radius:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:14px; color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input,select,textarea{font:inherit;color:var(--ink)}
+::selection{background:#f3d9d9}
+
+/* ============ 2. COQUILLE ============ */
+#app{display:flex;min-height:100vh}
+#sidebar{
+  width:240px;flex:0 0 240px;background:var(--side);color:var(--side-ink);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 16px 16px;border-bottom:1px solid #34373c}
+.brand-mark{width:30px;height:30px;background:var(--accent);border-radius:3px;display:flex;align-items:center;justify-content:center;flex:0 0 30px}
+.brand-mark svg{width:18px;height:18px;fill:#fff}
+.brand-txt b{display:block;font-size:14px;letter-spacing:.08em;color:#fff}
+.brand-txt span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9a9da1}
+nav{padding:10px 0;flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:10px 14px;border-left:3px solid transparent;color:#b9bbbe;font-size:13.5px;
+}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 16px}
+.nav-item:hover{background:var(--side-2);color:#e8e7e5}
+.nav-item.active{border-left-color:var(--accent);background:var(--side-2);color:#fff}
+.nav-count{margin-left:auto;font-size:11px;background:#3a3d42;color:#cfd1d3;border-radius:3px;padding:1px 7px}
+.side-foot{padding:14px 16px;border-top:1px solid #34373c;font-size:11px;color:#84878b;line-height:1.7}
+.side-foot b{color:#b9bbbe;font-weight:600}
+
+#content{flex:1;min-width:0;padding:26px 30px 60px}
+.view-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.view-head h1{font-size:17px;font-weight:650;letter-spacing:.01em}
+.view-head .sub{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.view-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============ 3. COMPOSANTS ============ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 12px;font-size:13px;
+  background:var(--panel);border:1px solid var(--line-2);border-radius:var(--radius);color:var(--ink);
+}
+.btn:hover{background:#f6f5f3;border-color:var(--line-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-dk);border-color:var(--accent-dk)}
+.btn.danger{color:var(--accent);border-color:#d9b3b4}
+.btn.danger:hover{background:#fbf1f1}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.mini{font-size:12px;padding:3px 8px;border:1px solid var(--line-2);border-radius:4px;background:#fff;color:var(--ink-2)}
+.mini:hover{border-color:var(--line-3);color:var(--ink)}
+.mini.del{color:var(--accent)}
+.mini.del:hover{background:#fbf1f1;border-color:#d9b3b4}
+
+.badge{display:inline-block;font-size:11.5px;padding:2px 8px;border:1px solid;border-radius:4px;background:#fff;white-space:nowrap}
+.badge.ok{color:var(--ok);border-color:#bcd3c4}
+.badge.warn{color:var(--warn);border-color:#d9c79a}
+.badge.bad{color:var(--bad);border-color:#dcb5b6}
+
+.tblwrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;min-width:640px}
+.tbl th{
+  text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-2);background:#edecea;padding:9px 12px;border-bottom:1px solid var(--line-2);white-space:nowrap;
+}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:#faf9f7}
+.tbl .mono{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--ink-2)}
+.tbl .no{font-weight:600;color:var(--accent);white-space:nowrap;cursor:pointer}
+.tbl .dim{color:var(--ink-3);font-size:12.5px}
+
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.field input,.field select,.field textarea{
+  border:1px solid var(--line-2);border-radius:var(--radius);padding:8px 10px;background:#fff;width:100%;
+}
+.field textarea{resize:vertical;min-height:70px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field .err{border-color:var(--bad)!important;background:#fdf7f7}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+.fgrid .full{grid-column:1/-1}
+fieldset.fs{border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:0 0 16px}
+fieldset.fs legend{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);padding:0 6px}
+
+.hint{font-size:12px;color:var(--ink-3)}
+
+/* Bande de statistiques */
+.statline{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:22px;overflow-x:auto}
+.stat{flex:1;min-width:130px;padding:14px 18px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat b{display:block;font-size:24px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.stat.hl b{color:var(--accent)}
+
+.dash-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.panel-h h2{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.panel-b{padding:6px 16px 14px}
+
+.line-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.line-row:last-child{border-bottom:none}
+.line-row .grow{min-width:0}
+.line-row .t1{font-weight:550}
+.line-row .t2{font-size:12.5px;color:var(--ink-3)}
+.line-row .r{margin-left:auto;text-align:right;flex:0 0 auto;font-variant-numeric:tabular-nums}
+
+.hbar{display:grid;grid-template-columns:150px 1fr 34px;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.hbar .lab{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar .track{height:10px;background:#e9e7e4;border-radius:3px;overflow:hidden}
+.hbar .fill{height:100%;border-radius:3px;background:#7c8085}
+.hbar .fill.ok{background:var(--ok)} .hbar .fill.warn{background:var(--warn)} .hbar .fill.bad{background:var(--accent)}
+.hbar .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+
+/* Registre : maître-détail */
+.reg{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}
+.reg-side{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+.site-item{display:block;width:100%;text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);border-left:3px solid transparent}
+.site-item:hover{background:#faf9f7}
+.site-item.active{border-left-color:var(--accent);background:#faf9f7}
+.site-item .t1{font-weight:600;font-size:13.5px}
+.site-item .t2{font-size:12px;color:var(--ink-3);margin-top:2px}
+.bld-list{padding:6px 0;background:#f7f6f4}
+.bld-list .cap{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:8px 14px 4px}
+.bld-item{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:7px 14px 7px 22px;font-size:13px;color:var(--ink-2)}
+.bld-item:hover{color:var(--ink);background:#efedea}
+.bld-item.active{color:var(--ink);font-weight:600}
+.bld-item .n{font-size:11.5px;color:var(--ink-3)}
+.site-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.site-head h2{font-size:16px;font-weight:650}
+.site-head .meta{font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line-2);border-radius:4px;padding:3px 9px;background:#fff;color:var(--ink-2)}
+.chip button{color:var(--ink-3);font-size:13px;line-height:1}
+.chip button:hover{color:var(--accent)}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input[type=search]{
+  border:1px solid var(--line-2);border-radius:var(--radius);padding:7px 10px;background:#fff;width:230px;
+}
+.toolbar input[type=search]:focus{outline:none;border-color:var(--ink)}
+
+/* États vides */
+.empty{padding:44px 20px;text-align:center;color:var(--ink-2)}
+.empty b{display:block;font-size:14px;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:13px;color:var(--ink-3);margin-bottom:14px}
+
+/* ============ 4. MODALES & TOASTS ============ */
+#overlay{position:fixed;inset:0;background:rgba(24,25,27,.55);display:none;z-index:50;padding:24px;overflow-y:auto}
+#overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--radius);width:100%;max-width:640px;margin:auto;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.modal.wide{max-width:880px}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.modal-h h3{font-size:14px;font-weight:650}
+.modal-x{font-size:20px;line-height:1;color:var(--ink-3);padding:2px 6px;border-radius:4px}
+.modal-x:hover{color:var(--ink);background:#f0efed}
+.modal-b{padding:18px;max-height:calc(100vh - 160px);overflow-y:auto}
+.modal-f{display:flex;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--line);background:#faf9f8;border-radius:0 0 var(--radius) var(--radius)}
+
+#toasts{position:fixed;right:18px;bottom:18px;z-index:80;display:flex;flex-direction:column;gap:8px}
+.toast{
+  background:#22252a;color:#f0efed;font-size:13px;padding:10px 14px;border-radius:var(--radius);
+  border-left:3px solid var(--accent);max-width:340px;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  animation:tin .18s ease-out;
+}
+.toast.ok{border-left-color:var(--ok)}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ============ 5. FEUILLE DE RAPPORT ============ */
+.report-sheet{background:#fff;border:1px solid var(--line-2);border-radius:var(--radius);max-width:820px;margin:0 auto;padding:30px 34px}
+.rp{color:#111;font-size:12.5px}
+.rp-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #111;padding-bottom:12px;margin-bottom:14px}
+.rp-brand{font-size:11px;font-weight:700;letter-spacing:.12em}
+.rp-brand .rp-mark{display:inline-block;width:10px;height:10px;background:#c1272d;margin-right:7px;vertical-align:-1px}
+.rp-doc{text-align:right}
+.rp-title{font-size:17px;font-weight:750;letter-spacing:.03em}
+.rp-no{font-size:12px;color:#c1272d;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+table.rp-meta{width:100%;border-collapse:collapse;margin-bottom:16px}
+.rp-meta th,.rp-meta td{border:1px solid #333;padding:6px 9px;text-align:left;font-size:12px}
+.rp-meta th{background:#efeceb;font-weight:600;width:110px;letter-spacing:.03em}
+.rp-sec{margin-bottom:14px}
+.rp-sec h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #333;padding-bottom:4px;margin-bottom:7px;color:#333}
+.rp-sec p{white-space:pre-wrap;line-height:1.55}
+table.rp-pieces{width:100%;border-collapse:collapse}
+.rp-pieces th,.rp-pieces td{border:1px solid #333;padding:5px 9px;font-size:12px;text-align:left}
+.rp-pieces th{background:#efeceb;letter-spacing:.03em}
+.rp-sigs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.rp-sig{border:1px solid #333;padding:10px;min-height:110px}
+.rp-sig .cap{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:#555;margin-bottom:6px}
+.rp-sig img{max-width:100%;max-height:72px;display:block}
+.rp-sig .none{color:#999;font-style:italic;font-size:12px}
+.rp-foot{margin-top:16px;padding-top:8px;border-top:1px solid #999;font-size:10.5px;color:#666;display:flex;justify-content:space-between}
+#reportDetailActions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+
+/* Zone d'impression hors écran (lisible par html2pdf) */
+#printArea{position:fixed;left:-12000px;top:0;width:760px;background:#fff}
+
+/* ============ 6. RESPONSIVE ============ */
+@media (max-width:960px){
+  #app{flex-direction:column}
+  #sidebar{width:100%;flex:none;height:auto;position:static}
+  nav{display:flex;overflow-x:auto;padding:0}
+  .nav-item{border-left:none;border-bottom:3px solid transparent;padding:12px 16px;white-space:nowrap}
+  .nav-item.active{border-bottom-color:var(--accent)}
+  .side-foot{display:none}
+  #content{padding:18px 14px 50px}
+  .dash-grid,.reg{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .rp-sigs{grid-template-columns:1fr}
+}
+</style>
+<script>
+// Capture précoce des erreurs de chargement de scripts externes (avant les <script src>)
+window.__fwFailed = [];
+window.addEventListener('error', function(e){
+  var t = e.target || e.srcElement;
+  if(t && t.nodeName === 'SCRIPT' && t.src){
+    var n = t.src.split('/').pop().split('?')[0];
+    if(window.__fwFailed.indexOf(n) < 0) window.__fwFailed.push(n);
+  }
+}, true);
+</script>
+</head>
+<body>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M12 3.2c2.6 3.1 4.4 5.4 4.4 8A5 5 0 0 1 7.6 12c0-1.2.35-2.3 1.05-3.4.45 1.05 1.15 1.75 2.1 2.1-.3-2.9.4-5.2 3.25-7.5z"/></svg></span>
+      <div class="brand-txt"><b>FIREWISE</b><span>Equipment Care</span></div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <b>v1.1</b> — données stockées<br>localement sur cet appareil
+    </div>
+  </aside>
+  <main id="content">
+    <div id="view">
+      <div class="empty" id="bootMsg" style="padding:60px 20px">
+        <b>Chargement…</b>
+        <p>Si ce message persiste, JavaScript est désactivé ou un script n'a pas pu se charger.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<noscript>
+  <div style="padding:40px;text-align:center;font-family:system-ui,sans-serif">
+    <h2>JavaScript est requis</h2>
+    <p>Cette application nécessite JavaScript pour fonctionner. Activez-le dans votre navigateur, puis rechargez la page.</p>
+  </div>
+</noscript>
+
+<div id="overlay"><div class="modal" id="modalBox"></div></div>
+<div id="toasts"></div>
+<div id="printArea"></div>
+
+<!-- Scripts applicatifs (locaux, chargement immédiat, non bloqués par le CDN) -->
+<script>
+/* ===== core.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — core.js
+   Utilitaires, référentiels SSI, état & persistance, catalogue
+   marques/références, jeu de démo, modales
+===================================================================== */
+
+/* ---------- 1. Utilitaires ---------- */
+const LS_KEY = 'firewise.v1';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+// Échappement HTML : toutes les données utilisateur passent par ici
+function esc(s){
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+const todayISO = () => new Date().toISOString().slice(0,10);
+function fmtDate(iso){
+  if(!iso) return '—';
+  const [y,m,d] = String(iso).split('T')[0].split('-');
+  return d ? `${d}/${m}/${y}` : iso;
+}
+function slug(s){
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+}
+
+function toast(msg, ok){
+  const t = document.createElement('div');
+  t.className = 'toast' + (ok ? ' ok' : '');
+  t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3800);
+}
+
+// Réduit une photo (caméra ou galerie) pour le stockage local : max 900px, JPEG
+function compressImage(file, maxSide, quality){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onerror = rej;
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = rej;
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * scale);
+        cv.height = Math.round(img.height * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        res(cv.toDataURL('image/jpeg', quality));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+// Petite plaque signalétique factice pour la démonstration
+function fakePlate(lines){
+  const cv = document.createElement('canvas');
+  cv.width = 520; cv.height = 190;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#2b2e33'; ctx.fillRect(0, 0, 520, 190);
+  ctx.strokeStyle = '#8f9296'; ctx.lineWidth = 3; ctx.strokeRect(8, 8, 504, 174);
+  ctx.fillStyle = '#c1272d'; ctx.fillRect(444, 24, 48, 48);
+  lines.forEach((l, i) => {
+    ctx.font = i === 0 ? 'bold 30px system-ui, sans-serif' : '20px system-ui, sans-serif';
+    ctx.fillStyle = i === 0 ? '#ffffff' : '#b9bbbe';
+    ctx.fillText(l, 28, 62 + i * 44);
+  });
+  return cv.toDataURL('image/jpeg', 0.8);
+}
+
+/* ---------- 2. Référentiels SSI (terminologie française) ---------- */
+const TYPES_EQ = [
+  // Détection incendie (SDI)
+  ['cds','Centrale de détection incendie (CDS)'],
+  ['trs','Tableau répétiteur de signalisation (TRS)'],
+  ['det_fum','Détecteur de fumée'],
+  ['det_the','Détecteur de chaleur / thermovélocimétrique'],
+  ['det_fla','Détecteur de flamme'],
+  ['det_lin','Détecteur linéaire (faisceau / thermique)'],
+  ['det_asp','Détection par aspiration (type VESDA)'],
+  ['dm','Déclencheur manuel (DM)'],
+  // Mise en sécurité (CMSI)
+  ['cmsi','CMSI / UCMAT — gestion de la mise en sécurité'],
+  ['uga','UGA (Unité de Gestion des Alarmes)'],
+  ['ta','Tableau d’alarme (TA / TAR)'],
+  ['das','DAS (Dispositif Actionnaire de Sécurité)'],
+  ['diff_son','Diffuseur sonore / avertisseur (AV)'],
+  // Extinction automatique
+  ['exgaz_cen','Extinction automatique à gaz — centrale / zone'],
+  ['exgaz_bout','Batterie de bouteilles de gaz extincteur (CO₂, FM-200, Novec…)'],
+  ['sprk','Extinction automatique par eau (sprinkleur)'],
+  // Autres équipements liés au SSI
+  ['desenf_dep','Désenfumage — exutoire / DEP / volet'],
+  ['vent_des','Ventilateur de désenfumage'],
+  ['pcf','Porte coupe-feu / compartimentage'],
+  ['clapet','Clapet coupe-feu (gaine)'],
+  ['col_sec','Colonne sèche'],
+  ['col_charge','Colonne en charge'],
+  ['ria','RIA (robe d’incendie armée)'],
+  ['autre','Autre matériel SSI'],
+];
+const typeLabel = v => (TYPES_EQ.find(t => t[0] === v) || ['','Autre'])[1];
+
+const STATUS = { service:'En service', verif:'À vérifier', hs:'Hors service' };
+const statusBadge = s => `<span class="badge ${s==='service'?'ok':s==='verif'?'warn':'bad'}">${STATUS[s]||'—'}</span>`;
+
+const REPORT_TYPES = { maintenance:'Maintenance', depannage:'Dépannage', mise:'Mise en service', journalier:'Rapport journalier' };
+
+/* ---------- 3. État & persistance ---------- */
+let state = { sites:[], buildings:[], equipment:[], reports:[], catalog:[] };
+let ui = { view:'dashboard', siteId:null, buildingId:null, reportId:null, q:'', typeFilter:'' };
+
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); return true; }
+  catch(e){
+    toast('Enregistrement impossible : stockage local saturé. La modification ne sera pas conservée après rechargement — exportez une sauvegarde JSON puis nettoyez les photos.');
+    return false;
+  }
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      state = {
+        sites: Array.isArray(d.sites) ? d.sites : [],
+        buildings: Array.isArray(d.buildings) ? d.buildings : [],
+        equipment: Array.isArray(d.equipment) ? d.equipment : [],
+        reports: Array.isArray(d.reports) ? d.reports : [],
+        catalog: Array.isArray(d.catalog) ? d.catalog : [],
+      };
+      return true;
+    }
+  }catch(e){ /* données corrompues : on repart à vide */ }
+  return false;
+}
+
+// Catalogue marques/références : alimenté automatiquement à chaque
+// enregistrement de matériel, puis proposé dans les formulaires suivants
+function addToCatalog(brand, model){
+  const b = String(brand || '').trim();
+  if(!b) return;
+  let entry = state.catalog.find(c => String(c.b).toLowerCase() === b.toLowerCase());
+  if(!entry){ entry = { b, refs: [] }; state.catalog.push(entry); }
+  else entry.b = b; // conserve la casse la plus récente
+  const m = String(model || '').trim();
+  if(m && !entry.refs.some(r => String(r).toLowerCase() === m.toLowerCase())) entry.refs.push(m);
+}
+
+/* ---------- 4. Jeu de démonstration (premier lancement) ---------- */
+function fakeSig(name){
+  const cv = document.createElement('canvas');
+  cv.width = 420; cv.height = 130;
+  const ctx = cv.getContext('2d');
+  ctx.strokeStyle = '#1e2022'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  let seed = 0; for(const c of name) seed += c.charCodeAt(0);
+  ctx.beginPath();
+  for(let x = 30; x <= 390; x += 4){
+    const y = 65 + Math.sin(x/26 + seed) * 16 + Math.sin(x/9 + seed*1.7) * 6;
+    x === 30 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(50, 92); ctx.bezierCurveTo(120, 60, 200, 118, 300, 78);
+  ctx.stroke();
+  return cv.toDataURL('image/png');
+}
+
+function seedDemo(){
+  const s1 = uid(), s2 = uid(), b1 = uid(), b2 = uid(), b3 = uid(), b4 = uid();
+  state.sites = [
+    { id:s1, name:'Résidence Les Cèdres', address:'12 avenue du Parc', zip:'69007', city:'Lyon', contact:'Mme Laurent (syndic)', phone:'04 72 00 11 22' },
+    { id:s2, name:'Usine Nord — Logistique', address:'ZI Nord, rue des Fonderies', zip:'59200', city:'Tourcoing', contact:'M. Diallo (HSE)', phone:'03 20 00 44 55' },
+  ];
+  state.buildings = [
+    { id:b1, siteId:s1, name:'Bâtiment A — logements', note:'R+4, 42 lots' },
+    { id:b2, siteId:s1, name:'Bâtiment B — parking', note:'Sous-sol, 2 niveaux' },
+    { id:b3, siteId:s2, name:'Hall de production', note:'' },
+    { id:b4, siteId:s2, name:'Local CMCF / technique', note:'' },
+  ];
+  state.catalog = [
+    { b:'Bosch',   refs:['FPA-1200-U4','UGA intégrée FPA-1200'] },
+    { b:'Siemens', refs:['TA — 24 zones'] },
+    { b:'Apollo',  refs:['Détecteur Série 65'] },
+    { b:'Hochiki', refs:['DM HRS'] },
+    { b:'Aldes',   refs:['DEP 150'] },
+    { b:'Kidde',   refs:['Centrale ExGas 4 zones','Batterie 6 × 40 L FM-200'] },
+  ];
+  state.equipment = [
+    { id:uid(), siteId:s1, buildingId:b1, type:'ta',       brand:'Siemens', model:'TA — 24 zones',            serial:'TA-77431',  loc:'Cage d’escalier, RDC',   mes:'2022-01-25', status:'service' },
+    { id:uid(), siteId:s1, buildingId:b1, type:'dm',       brand:'Hochiki', model:'DM HRS',                   serial:'DM-12A',    loc:'Palier 2e étage',        mes:'2022-01-25', status:'service', photo:fakePlate(['HOCHIKI DM HRS','NS DM-12A','Déclencheur manuel']) },
+    { id:uid(), siteId:s1, buildingId:b1, type:'pcf',      brand:null,      model:'Porte CF 1h',              serial:'PCF-12A',   loc:'Cage d’escalier',        mes:'2018-06-15', status:'hs' },
+    { id:uid(), siteId:s1, buildingId:b2, type:'col_sec',  brand:null,      model:'Colonne sèche DN100',      serial:'CS-5312',   loc:'Niveau -1, rampe A',     mes:'2023-02-08', status:'service' },
+    { id:uid(), siteId:s2, buildingId:b3, type:'det_fum',  brand:'Apollo',  model:'Détecteur Série 65',       serial:'DF-33981',  loc:'Accès atelier 3',        mes:'2020-05-19', status:'service' },
+    { id:uid(), siteId:s2, buildingId:b3, type:'desenf_dep',brand:'Aldes',  model:'DEP 150',                  serial:'DE-11873',  loc:'Toiture, zone B',        mes:'2021-10-30', status:'verif' },
+    { id:uid(), siteId:s2, buildingId:b4, type:'cds',      brand:'Bosch',   model:'FPA-1200-U4',              serial:'FC-90214',  loc:'Local CMCF',             mes:'2022-01-25', status:'service', photo:fakePlate(['BOSCH FPA-1200-U4','NS FC-90214','Centrale de détection']) },
+    { id:uid(), siteId:s2, buildingId:b4, type:'uga',      brand:'Bosch',   model:'UGA intégrée FPA-1200',    serial:'UG-90215',  loc:'Local CMCF',             mes:'2022-01-25', status:'service' },
+    { id:uid(), siteId:s2, buildingId:b4, type:'exgaz_cen',brand:'Kidde',   model:'Centrale ExGas 4 zones',   serial:'EX-40112',  loc:'Salle machines',         mes:'2023-03-10', status:'service', photo:fakePlate(['KIDDE ExGas','NS EX-40112','Extinction gaz — 4 zones']) },
+    { id:uid(), siteId:s2, buildingId:b4, type:'exgaz_bout',brand:'Kidde',  model:'Batterie 6 × 40 L FM-200', serial:'BT-40113',  loc:'Salle machines',         mes:'2023-03-10', status:'service' },
+  ];
+  const today = new Date();
+  const dISO = d => d.toISOString().slice(0,10);
+  state.reports = [{
+    id:uid(), no:'RPT-' + today.getFullYear() + '-0001', type:'maintenance',
+    date:dISO(new Date(today.getTime() - 6*864e5)), tech:'P. Morel', linkMode:'base',
+    siteId:s2, buildingId:b4, equipmentId:state.equipment[6].id,
+    equipmentIds:[state.equipment[6].id],
+    equipmentList:['Centrale de détection incendie (CDS) Bosch FPA-1200-U4 (NS FC-90214) — Usine Nord — Logistique · Local CMCF / technique · Local CMCF'],
+    tests:[{ eqId:state.equipment[6].id, label:eqFullLabel(state.equipment[6]), res:'conforme', note:'Boucles 1 à 4 testées, sensibilités conformes. Alimentation secourue vérifiée.' }],
+    siteName:'Usine Nord — Logistique', buildingName:'Local CMCF / technique',
+    equipmentDesc:'Centrale de détection incendie (CDS) Bosch FPA-1200-U4 (NS FC-90214)',
+    obs:'Contrôle annuel de la centrale de détection : niveaux de sensibilité, tests de boucles, vérification de l’alimentation secourue et des reports au CMSI.',
+    anomalies:'Détecteur de fumée de la boucle 2 (hall de production) signalant un défaut d’encrassement.',
+    actions:'Nettoyage du détecteur concerné puis remplacement. Essais fonctionnels boucle 2 conformes après intervention.',
+    pieces:[{d:'Détecteur de fumée Apollo Série 65', r:'55000-328', q:'1'}],
+    reco:'Planifier le remplacement des détecteurs de la boucle 3 lors de la prochaine visite semestrielle.',
+    nextVisit:dISO(new Date(today.getTime() + 180*864e5)),
+    sigTech:fakeSig('P. Morel'), sigClient:fakeSig('M. Diallo'), createdAt:Date.now(),
+  }];
+  save();
+}
+
+/* ---------- 5. Modales génériques ---------- */
+const overlay = document.getElementById('overlay');
+const modalBox = document.getElementById('modalBox');
+
+function openModal(title, bodyHTML, wide){
+  modalBox.className = 'modal' + (wide ? ' wide' : '');
+  modalBox.innerHTML = `
+    <div class="modal-h"><h3>${esc(title)}</h3><button class="modal-x" id="mClose" title="Fermer">×</button></div>
+    <div class="modal-b">${bodyHTML}</div>`;
+  overlay.classList.add('open');
+  document.getElementById('mClose').onclick = closeModal;
+  return modalBox.querySelector('.modal-b');
+}
+function closeModal(){ overlay.classList.remove('open'); modalBox.innerHTML = ''; }
+overlay.addEventListener('mousedown', e => { if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+
+function confirmBox(title, msg, onOk){
+  const body = openModal(title, `
+    <p style="line-height:1.6;color:var(--ink-2)">${msg}</p>`);
+  const foot = document.createElement('div');
+  foot.className = 'modal-f';
+  foot.innerHTML = `<button class="btn" id="cNo">Annuler</button><button class="btn primary" id="cYes">Confirmer</button>`;
+  modalBox.appendChild(foot);
+  foot.querySelector('#cNo').onclick = closeModal;
+  foot.querySelector('#cYes').onclick = () => { closeModal(); onOk(); };
+}
+
+function formFooter(submitLabel){
+  const foot = document.createElement('div');
+  foot.className = 'modal-f';
+  foot.innerHTML = `<button class="btn" id="fCancel">Annuler</button><button class="btn primary" id="fSubmit">${esc(submitLabel)}</button>`;
+  modalBox.appendChild(foot);
+  foot.querySelector('#fCancel').onclick = closeModal;
+  return foot.querySelector('#fSubmit');
+}
+function markInvalid(el){ if(el){ el.classList.add('err'); el.focus(); } }
+</script>
+<script>
+/* ===== views.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — views.js
+   Navigation, routage et tableau de bord
+===================================================================== */
+
+/* ---------- 6. Navigation ---------- */
+const NAV = [
+  ['dashboard','Registre général','<rect x="2.5" y="3.5" width="11" height="9" rx="1"/><path d="M2.5 7h11M6.5 7v5.5"/>'],
+  ['registry','Sites & matériel','<path d="M4 13V4h8v9M2.5 13h11M6 6.5h1.5M9 6.5h1.5M6 9h1.5M9 9h1.5M7.5 13v-2h1v2"/>'],
+  ['reports','Rapports','<path d="M5 2.5h6l2.5 2.5v8.5H5zM11 2.5V5h2.5M7 7.5h4M7 10h4"/>'],
+  ['settings','Réglages','<path d="M3 5h10M3 10.5h10"/><circle cx="7" cy="5" r="1.7"/><circle cx="10" cy="10.5" r="1.7"/>'],
+];
+
+function renderNav(){
+  const cur = ui.view === 'report' ? 'reports' : ui.view;
+  document.getElementById('nav').innerHTML = NAV.map(([id,label,icon]) => `
+    <button class="nav-item ${cur===id?'active':''}" data-nav="${id}">
+      <svg viewBox="0 0 16 16">${icon}</svg>${label}
+      ${id==='reports' && state.reports.length ? `<span class="nav-count">${state.reports.length}</span>` : ''}
+    </button>`).join('');
+  document.getElementById('nav').querySelectorAll('[data-nav]').forEach(b => {
+    b.onclick = () => go(b.dataset.nav);
+  });
+}
+
+function go(view, opts = {}){
+  ui.view = view;
+  if('siteId' in opts) ui.siteId = opts.siteId;
+  if('buildingId' in opts) ui.buildingId = opts.buildingId;
+  if('reportId' in opts) ui.reportId = opts.reportId;
+  render();
+}
+
+function render(){
+  renderNav();
+  const v = document.getElementById('view');
+  if(ui.view === 'dashboard') renderDashboard(v);
+  else if(ui.view === 'registry') renderRegistry(v);
+  else if(ui.view === 'reports') renderReports(v);
+  else if(ui.view === 'report') renderReportDetail(v);
+  else if(ui.view === 'settings') renderSettings(v);
+}
+
+/* ---------- 7. Vue : Tableau de bord ---------- */
+function renderDashboard(v){
+  const hs = state.equipment.filter(e => e.status === 'hs');
+  const byType = {};
+  state.equipment.forEach(e => { const l = typeLabel(e.type); byType[l] = (byType[l]||0)+1; });
+  const typeRows = Object.entries(byType).sort((a,b) => b[1]-a[1]).slice(0,6);
+  const stCounts = { service:0, verif:0, hs:0 };
+  state.equipment.forEach(e => stCounts[e.status] = (stCounts[e.status]||0)+1);
+  const lastReports = [...state.reports].sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0)).slice(0,6);
+  const maxT = typeRows.length ? typeRows[0][1] : 1;
+
+  const hasData = state.sites.length || state.reports.length;
+  v.innerHTML = `
+    <div class="view-head">
+      <div><h1>Registre général</h1><div class="sub">Vue du ${fmtDate(todayISO())} — parc SSI et interventions récentes</div></div>
+      <div class="view-actions">
+        ${state.sites.length ? `<button class="btn" id="dashEq">Ajouter du matériel</button>` : ''}
+        <button class="btn primary" id="dashRep">Nouveau rapport</button>
+      </div>
+    </div>
+    ${!hasData ? `
+      <div class="panel"><div class="empty">
+        <b>Bienvenue dans Firewise Equipment Care</b>
+        <p>Commencez par créer votre premier site, puis ajoutez vos bâtiments et le matériel SSI associé.<br>Un jeu de démonstration est également disponible dans les Réglages.</p>
+        <button class="btn primary" id="dashSite">Créer un premier site</button>
+      </div></div>` : `
+    <div class="statline">
+      <div class="stat"><b>${state.sites.length}</b><span>Sites</span></div>
+      <div class="stat"><b>${state.buildings.length}</b><span>Bâtiments</span></div>
+      <div class="stat"><b>${state.equipment.length}</b><span>Matériel SSI</span></div>
+      <div class="stat hl"><b>${hs.length}</b><span>Hors service</span></div>
+      <div class="stat"><b>${state.reports.length}</b><span>Rapports</span></div>
+    </div>
+    <div class="dash-grid">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+          <div class="panel-h"><h2>Derniers rapports</h2><button class="mini" id="dashAll">Tout voir</button></div>
+          <div class="panel-b">
+            ${lastReports.length ? lastReports.map(r => `
+              <div class="line-row">
+                <div class="grow">
+                  <div class="t1"><span style="color:var(--accent);font-weight:650">${esc(r.no)}</span> — ${esc(REPORT_TYPES[r.type]||'')}</div>
+                  <div class="t2">${esc(r.siteName||'')}${r.equipmentDesc ? ' · ' + esc(r.equipmentDesc) : ''}</div>
+                </div>
+                <div class="r"><div class="t1" style="font-size:13px">${fmtDate(r.date)}</div><button class="mini" data-open-r="${r.id}">Ouvrir</button></div>
+              </div>`).join('') : `<div class="empty" style="padding:20px"><p>Aucun rapport enregistré pour le moment.</p></div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Matériel hors service</h2></div>
+          <div class="panel-b">
+            ${hs.length ? hs.map(e => {
+              const s = state.sites.find(x => x.id === e.siteId), b = state.buildings.find(x => x.id === e.buildingId);
+              return `<div class="line-row">
+                <div class="grow"><div class="t1">${esc(typeLabel(e.type))} <span style="color:var(--ink-3);font-weight:400">— ${esc(e.brand||'')} ${esc(e.model||'')}</span></div>
+                <div class="t2">${esc(s ? s.name : '')} · ${esc(b ? b.name : '')} · ${esc(e.loc||'')}</div></div>
+                <button class="mini" data-goto-reg="${e.siteId}">Voir</button>
+              </div>`;}).join('') : `<div class="empty" style="padding:20px"><p>Aucun matériel hors service.</p></div>`}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+          <div class="panel-h"><h2>Répartition par état</h2></div>
+          <div class="panel-b" style="padding-top:10px">
+            ${['service','verif','hs'].map(s => `
+              <div class="hbar"><span class="lab">${STATUS[s]}</span>
+                <div class="track"><div class="fill ${s==='service'?'ok':s==='verif'?'warn':'bad'}" style="width:${state.equipment.length ? Math.round(stCounts[s]/state.equipment.length*100) : 0}%"></div></div>
+                <span class="n">${stCounts[s]||0}</span></div>`).join('')}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Par type de matériel</h2></div>
+          <div class="panel-b" style="padding-top:10px">
+            ${typeRows.length ? typeRows.map(([l,n]) => `
+              <div class="hbar"><span class="lab" title="${esc(l)}">${esc(l)}</span>
+                <div class="track"><div class="fill" style="width:${Math.round(n/maxT*100)}%"></div></div>
+                <span class="n">${n}</span></div>`).join('') : `<div class="empty" style="padding:16px"><p>Aucun matériel enregistré.</p></div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Dernier matériel ajouté</h2></div>
+          <div class="panel-b">
+            ${[...state.equipment].slice(-4).reverse().map(e => `
+              <div class="line-row"><div class="grow"><div class="t1">${esc(typeLabel(e.type))}</div>
+              <div class="t2">${esc(e.brand||'')} ${esc(e.model||'')} · ${esc(e.loc||'—')}</div></div>${statusBadge(e.status)}</div>`).join('')
+              || `<div class="empty" style="padding:16px"><p>—</p></div>`}
+          </div>
+        </div>
+      </div>
+    </div>`}
+  `;
+  const bind = (id, fn) => { const el = v.querySelector(id); if(el) el.onclick = fn; };
+  bind('#dashRep', () => openReportForm());
+  bind('#dashSite', () => openSiteForm());
+  bind('#dashEq', () => openEquipmentForm());
+  bind('#dashAll', () => go('reports'));
+  v.querySelectorAll('[data-open-r]').forEach(b => b.onclick = () => go('report', { reportId:b.dataset.openR }));
+  v.querySelectorAll('[data-goto-reg]').forEach(b => b.onclick = () => go('registry', { siteId:b.dataset.gotoReg, buildingId:null }));
+}
+
+/* ===== FIN DE views.js ===== */
+</script>
+<script>
+/* ===== registry.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — registry.js
+   Vue registre (maître-détail) : sites > bâtiments > matériel
+===================================================================== */
+
+/* ---------- 8. Vue : Registre (maître-détail) ---------- */
+function renderRegistry(v){
+  const sites = state.sites;
+  if(!sites.length){
+    v.innerHTML = `
+      <div class="view-head"><div><h1>Sites & matériel</h1><div class="sub">Aucun site enregistré</div></div>
+      <div class="view-actions"><button class="btn primary" id="regAddSite">Nouveau site</button></div></div>
+      <div class="panel"><div class="empty"><b>Aucun site</b><p>Créez un site pour y rattacher vos bâtiments et votre matériel SSI.</p></div></div>`;
+    v.querySelector('#regAddSite').onclick = () => openSiteForm();
+    return;
+  }
+  if(!state.sites.find(s => s.id === ui.siteId)){ ui.siteId = sites[0].id; ui.buildingId = null; }
+  const site = sites.find(s => s.id === ui.siteId);
+  const blds = state.buildings.filter(b => b.siteId === site.id);
+  if(ui.buildingId && !blds.find(b => b.id === ui.buildingId)) ui.buildingId = null;
+
+  let eq = state.equipment.filter(e => e.siteId === site.id);
+  if(ui.buildingId) eq = eq.filter(e => e.buildingId === ui.buildingId);
+  const q = ui.q.trim().toLowerCase();
+  if(q) eq = eq.filter(e => [typeLabel(e.type), e.brand, e.model, e.serial, e.loc]
+    .some(x => String(x||'').toLowerCase().includes(q)));
+
+  const siteBld = b => state.buildings.find(x => x.id === b.buildingId);
+
+  v.innerHTML = `
+    <div class="view-head">
+      <div><h1>Sites & matériel</h1><div class="sub">${state.sites.length} site(s) · ${state.equipment.length} matériel(s) SSI · ${state.catalog.length} marque(s) au catalogue</div></div>
+      <div class="view-actions"><button class="btn" id="regAddSite">Nouveau site</button><button class="btn primary" id="regAddEq">Ajouter du matériel</button></div>
+    </div>
+    <div class="reg">
+      <div class="reg-side">
+        ${sites.map(s => `
+          <button class="site-item ${s.id===site.id?'active':''}" data-sel-site="${s.id}">
+            <div class="t1">${esc(s.name)}</div>
+            <div class="t2">${esc(s.city||'')} · ${state.buildings.filter(b=>b.siteId===s.id).length} bât. · ${state.equipment.filter(e=>e.siteId===s.id).length} matériel(s)</div>
+          </button>`).join('')}
+        ${blds.length ? `<div class="bld-list"><div class="cap">Bâtiments — ${esc(site.name)}</div>
+          <button class="bld-item ${!ui.buildingId?'active':''}" data-sel-bld=""><span>Tout le site</span><span class="n">${state.equipment.filter(e=>e.siteId===site.id).length}</span></button>
+          ${blds.map(b => `
+            <button class="bld-item ${ui.buildingId===b.id?'active':''}" data-sel-bld="${b.id}">
+              <span>${esc(b.name)}</span><span class="n">${state.equipment.filter(e=>e.buildingId===b.id).length}</span>
+            </button>`).join('')}
+        </div>` : ''}
+      </div>
+      <div>
+        <div class="site-head">
+          <div>
+            <h2>${esc(site.name)}</h2>
+            <div class="meta">${esc([site.address, [site.zip, site.city].filter(Boolean).join(' ')].filter(Boolean).join(', ') || 'Adresse non renseignée')}
+            ${site.contact ? ` · Contact : ${esc(site.contact)}${site.phone ? ' (' + esc(site.phone) + ')' : ''}` : ''}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="regEditSite">Modifier</button>
+            <button class="btn" id="regAddBld">+ Bâtiment</button>
+            <button class="btn danger" id="regDelSite">Supprimer</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          ${ui.buildingId ? `<span class="chip">Bâtiment : ${esc((blds.find(b=>b.id===ui.buildingId)||{}).name||'')}<button id="chipClear" title="Retirer le filtre">×</button></span>` : ''}
+          <input type="search" id="regQ" placeholder="Rechercher (type, marque, n° série…)" value="${esc(ui.q)}">
+        </div>
+        <div class="tblwrap"><table class="tbl">
+          <thead><tr><th style="width:52px">Ph.</th><th>Type</th><th>Désignation</th><th>N° série</th><th>Localisation</th><th>Bâtiment</th><th>M.E.S.</th><th>État</th><th style="width:120px"></th></tr></thead>
+          <tbody>
+            ${eq.length ? eq.map(e => `
+              <tr>
+                <td>${e.photo
+                  ? `<img src="${e.photo}" alt="" style="width:38px;height:29px;object-fit:cover;border-radius:3px;border:1px solid var(--line-2);display:block">`
+                  : '<span class="dim">—</span>'}</td>
+                <td>${esc(typeLabel(e.type))}</td>
+                <td><b>${esc(e.brand||'—')}</b><div class="dim">${esc(e.model||'')}</div></td>
+                <td class="mono">${esc(e.serial||'—')}</td>
+                <td>${esc(e.loc||'—')}</td>
+                <td class="dim">${esc((siteBld(e)||{}).name||'—')}</td>
+                <td class="mono">${fmtDate(e.mes)}</td>
+                <td>${statusBadge(e.status)}</td>
+                <td><div style="display:flex;gap:6px;justify-content:flex-end">
+                  <button class="mini" data-edit-eq="${e.id}">Modifier</button>
+                  <button class="mini del" data-del-eq="${e.id}">Suppr.</button>
+                </div></td>
+              </tr>`).join('')
+            : `<tr><td colspan="9"><div class="empty" style="padding:26px"><b>Aucun matériel${q||ui.buildingId ? ' ne correspond' : ''}</b><p>${q||ui.buildingId ? 'Ajustez la recherche ou le filtre de bâtiment.' : 'Ajoutez le premier équipement SSI de ce site.'}</p></div></td></tr>`}
+          </tbody>
+        </table></div>
+      </div>
+    </div>`;
+
+  v.querySelector('#regAddSite').onclick = () => openSiteForm();
+  v.querySelector('#regAddEq').onclick = () => openEquipmentForm();
+  v.querySelector('#regEditSite').onclick = () => openSiteForm(site.id);
+  v.querySelector('#regAddBld').onclick = () => openBuildingForm(site.id);
+  v.querySelector('#regDelSite').onclick = () => {
+    const n = state.buildings.filter(b => b.siteId === site.id).length + state.equipment.filter(e => e.siteId === site.id).length;
+    confirmBox('Supprimer le site', `Supprimer <b>« ${esc(site.name)} »</b> ainsi que ses ${n} élément(s) rattaché(s) ?<br>Les rapports déjà créés seront conservés.`, () => {
+      state.buildings = state.buildings.filter(b => b.siteId !== site.id);
+      state.equipment = state.equipment.filter(e => e.siteId !== site.id);
+      state.sites = state.sites.filter(s => s.id !== site.id);
+      ui.siteId = null; ui.buildingId = null; save(); render();
+      toast('Site supprimé.', true);
+    });
+  };
+  const qInput = v.querySelector('#regQ');
+  qInput.oninput = () => { ui.q = qInput.value; renderRegistry(v);
+    const nq = v.querySelector('#regQ'); nq.focus(); nq.setSelectionRange(nq.value.length, nq.value.length); };
+  const chip = v.querySelector('#chipClear'); if(chip) chip.onclick = () => { ui.buildingId = null; render(); };
+  v.querySelectorAll('[data-sel-site]').forEach(b => b.onclick = () => go('registry', { siteId:b.dataset.selSite, buildingId:null }));
+  v.querySelectorAll('[data-sel-bld]').forEach(b => b.onclick = () => { ui.buildingId = b.dataset.selBld || null; render(); });
+  v.querySelectorAll('[data-edit-eq]').forEach(b => b.onclick = () => openEquipmentForm(b.dataset.editEq));
+  v.querySelectorAll('[data-del-eq]').forEach(b => b.onclick = () => {
+    const e = state.equipment.find(x => x.id === b.dataset.delEq);
+    confirmBox('Supprimer le matériel', `Supprimer <b>${esc(typeLabel(e.type))} — ${esc(e.brand||'')} ${esc(e.model||'')}</b> (NS ${esc(e.serial||'—')}) ?`, () => {
+      state.equipment = state.equipment.filter(x => x.id !== e.id); save(); render();
+      toast('Matériel supprimé.', true);
+    });
+  });
+}
+
+/* ===== FIN DE registry.js ===== */
+</script>
+<script>
+/* ===== forms.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — forms.js
+   Formulaires : site, bâtiment, matériel
+   Les marques/références saisies alimentent automatiquement le
+   catalogue et sont proposées dans les formulaires suivants.
+===================================================================== */
+
+/* ---------- 9. Formulaires : site / bâtiment ---------- */
+function openSiteForm(siteId){
+  const s = state.sites.find(x => x.id === siteId) || {};
+  openModal(s.id ? 'Modifier le site' : 'Nouveau site', `
+    <div class="fgrid">
+      <div class="field full"><label>Nom du site *</label><input id="f_name" value="${esc(s.name||'')}"></div>
+      <div class="field full"><label>Adresse</label><input id="f_addr" value="${esc(s.address||'')}"></div>
+      <div class="field"><label>Code postal</label><input id="f_zip" value="${esc(s.zip||'')}"></div>
+      <div class="field"><label>Ville</label><input id="f_city" value="${esc(s.city||'')}"></div>
+      <div class="field"><label>Contact sur site</label><input id="f_contact" value="${esc(s.contact||'')}"></div>
+      <div class="field"><label>Téléphone</label><input id="f_phone" value="${esc(s.phone||'')}"></div>
+    </div>`);
+  const submit = formFooter(s.id ? 'Enregistrer' : 'Créer le site');
+  submit.onclick = () => {
+    const name = document.getElementById('f_name').value.trim();
+    if(!name){ markInvalid(document.getElementById('f_name')); return toast('Le nom du site est obligatoire.'); }
+    const data = {
+      name, address:document.getElementById('f_addr').value.trim(),
+      zip:document.getElementById('f_zip').value.trim(), city:document.getElementById('f_city').value.trim(),
+      contact:document.getElementById('f_contact').value.trim(), phone:document.getElementById('f_phone').value.trim(),
+    };
+    if(s.id) Object.assign(state.sites.find(x => x.id === s.id), data);
+    else { const ns = { id:uid(), ...data }; state.sites.push(ns); ui.siteId = ns.id; }
+    save(); closeModal(); render(); toast(s.id ? 'Site mis à jour.' : 'Site créé.', true);
+  };
+}
+
+function openBuildingForm(siteId){
+  const opts = state.sites.map(s => `<option value="${s.id}" ${s.id===siteId?'selected':''}>${esc(s.name)}</option>`).join('');
+  openModal('Nouveau bâtiment', `
+    <div class="fgrid">
+      <div class="field"><label>Site *</label><select id="f_site">${opts}</select></div>
+      <div class="field"><label>Nom du bâtiment *</label><input id="f_name"></div>
+      <div class="field full"><label>Note (niveaux, particularités…)</label><textarea id="f_note"></textarea></div>
+    </div>`);
+  const submit = formFooter('Créer le bâtiment');
+  submit.onclick = () => {
+    const siteSel = document.getElementById('f_site').value;
+    const name = document.getElementById('f_name').value.trim();
+    if(!name){ markInvalid(document.getElementById('f_name')); return toast('Le nom du bâtiment est obligatoire.'); }
+    state.buildings.push({ id:uid(), siteId:siteSel, name, note:document.getElementById('f_note').value.trim() });
+    ui.siteId = siteSel; save(); closeModal(); render(); toast('Bâtiment créé.', true);
+  };
+}
+
+/* ---------- 9b. Formulaire matériel : catalogue + photo ---------- */
+function openEquipmentForm(eqId){
+  const e = state.equipment.find(x => x.id === eqId) || {};
+  const selSite = e.siteId || (ui.siteId && state.sites.find(s => s.id === ui.siteId) ? ui.siteId : (state.sites[0]||{}).id);
+  const bldOpts = sid => state.buildings.filter(b => b.siteId === sid)
+    .map(b => `<option value="${b.id}" ${b.id===e.buildingId?'selected':''}>${esc(b.name)}</option>`).join('') || '<option value="">—</option>';
+
+  // Catalogue marques/références connues (+ celle du matériel édité si absente)
+  const brands = state.catalog.map(c => ({ b:c.b, refs:[...c.refs] }));
+  if(e.brand && !brands.some(c => String(c.b).toLowerCase() === String(e.brand).toLowerCase()))
+    brands.unshift({ b:e.brand, refs:e.model ? [e.model] : [] });
+  brands.sort((a,b) => a.b.localeCompare(b.b, 'fr'));
+
+  let photoData = e.photo || null;
+
+  openModal(e.id ? 'Modifier le matériel' : 'Nouveau matériel', `
+    <div class="fgrid">
+      <div class="field"><label>Site *</label><select id="f_site">${state.sites.map(s => `<option value="${s.id}" ${s.id===selSite?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>Bâtiment *</label><select id="f_bld">${bldOpts(selSite)}</select></div>
+      <div class="field"><label>Type de matériel *</label><select id="f_type">${TYPES_EQ.map(([v,l]) => `<option value="${v}" ${v===e.type?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+      <div class="field"><label>État *</label><select id="f_status">${Object.entries(STATUS).map(([v,l]) => `<option value="${v}" ${v===e.status?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Marque</label>
+        <select id="f_brandSel">
+          <option value="">— choisir dans le catalogue —</option>
+          ${brands.map(c => `<option value="${esc(c.b)}" ${String(c.b)===String(e.brand)?'selected':''}>${esc(c.b)}</option>`).join('')}
+          <option value="__other__">＋ Autre marque (nouvelle)…</option>
+        </select>
+        <input id="f_brand" placeholder="Taper la nouvelle marque" style="display:none;margin-top:6px" value="${esc(e.brand||'')}">
+      </div>
+      <div class="field"><label>Référence / modèle</label>
+        <select id="f_modelSel"></select>
+        <input id="f_model" placeholder="Taper la nouvelle référence" style="display:none;margin-top:6px" value="${esc(e.model||'')}">
+      </div>
+      <div class="field"><label>N° de série</label><input id="f_serial" value="${esc(e.serial||'')}"></div>
+      <div class="field"><label>Date de mise en service</label><input type="date" id="f_mes" value="${esc(e.mes||'')}"></div>
+      <div class="field full"><label>Localisation précise</label><input id="f_loc" value="${esc(e.loc||'')}" placeholder="Ex. : local CMCF, palier R+2, salle machines…"></div>
+      <div class="field full"><label>Photo d’identification (plaque signalétique, étiquette…)</label>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <img id="f_photoPrev" alt="Photo d’identification" src="${photoData ? photoData : ''}"
+               style="width:120px;height:90px;object-fit:cover;border:1px solid var(--line-2);border-radius:6px;background:#f2f1ef;${photoData ? '' : 'display:none'}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <input type="file" id="f_photo" accept="image/*" capture="environment" style="font-size:12px">
+            <button type="button" class="mini del" id="f_photoDel" ${photoData ? '' : 'style="display:none"'}>Retirer la photo</button>
+            <span class="hint">La photo est réduite puis enregistrée localement avec le matériel.</span>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  const siteSel = modalBox.querySelector('#f_site'), bldSel = modalBox.querySelector('#f_bld');
+  siteSel.onchange = () => { bldSel.innerHTML = bldOpts(siteSel.value); };
+
+  // --- listes à choix alimentées par le catalogue ---
+  const brandSel = modalBox.querySelector('#f_brandSel'), brandInput = modalBox.querySelector('#f_brand');
+  const modelSel = modalBox.querySelector('#f_modelSel'), modelInput = modalBox.querySelector('#f_model');
+
+  function syncBrandUI(){
+    const other = brandSel.value === '__other__';
+    brandInput.style.display = other ? '' : 'none';
+    const entry = brands.find(c => c.b === brandSel.value);
+    const refs = entry ? entry.refs : [];
+    const cur = e.model || '';
+    modelSel.innerHTML = '<option value="">— choisir dans le catalogue —</option>'
+      + refs.map(rf => `<option value="${esc(rf)}" ${rf===cur?'selected':''}>${esc(rf)}</option>`).join('')
+      + (cur && !refs.some(rf => rf === cur) ? `<option value="${esc(cur)}" selected>${esc(cur)}</option>` : '')
+      + '<option value="__other__">＋ Autre référence (nouvelle)…</option>';
+    syncModelUI();
+  }
+  function syncModelUI(){
+    modelInput.style.display = modelSel.value === '__other__' ? '' : 'none';
+  }
+  brandSel.onchange = syncBrandUI;
+  modelSel.onchange = syncModelUI;
+  syncBrandUI();
+
+  // --- photo d'identification ---
+  const photoPrev = modalBox.querySelector('#f_photoPrev');
+  const photoDel  = modalBox.querySelector('#f_photoDel');
+  modalBox.querySelector('#f_photo').onchange = ev => {
+    const file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    compressImage(file, 900, 0.75).then(d => {
+      photoData = d;
+      photoPrev.src = d; photoPrev.style.display = '';
+      photoDel.style.display = '';
+    }).catch(() => toast('Impossible de lire cette image.'));
+  };
+  photoDel.onclick = () => {
+    photoData = null;
+    photoPrev.style.display = 'none';
+    photoDel.style.display = 'none';
+  };
+
+  // --- enregistrement ---
+  const submit = formFooter(e.id ? 'Enregistrer' : 'Ajouter le matériel');
+  submit.onclick = () => {
+    if(!bldSel.value){ markInvalid(bldSel); return toast('Sélectionnez un bâtiment (créez-en un si nécessaire).'); }
+    const brand = brandSel.value === '__other__' ? brandInput.value.trim() : brandSel.value;
+    const model = modelSel.value === '__other__' ? modelInput.value.trim() : modelSel.value;
+    const data = {
+      siteId:siteSel.value, buildingId:bldSel.value,
+      type:document.getElementById('f_type').value, status:document.getElementById('f_status').value,
+      brand, model,
+      serial:document.getElementById('f_serial').value.trim(), mes:document.getElementById('f_mes').value,
+      loc:document.getElementById('f_loc').value.trim(),
+      photo:photoData,
+    };
+    // Enregistrement automatique dans le catalogue pour les prochains formulaires
+    addToCatalog(brand, model);
+    if(e.id) Object.assign(state.equipment.find(x => x.id === e.id), data);
+    else { const ne = { id:uid(), ...data }; state.equipment.push(ne); ui.siteId = ne.siteId; }
+    save(); closeModal(); render();
+    toast(e.id ? 'Matériel mis à jour — catalogue marques/références actualisé.' : 'Matériel ajouté — catalogue marques/références actualisé.', true);
+  };
+}
+
+/* ===== FIN DE forms.js ===== */
+</script>
+<script>
+/* ===== reports.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — reports.js
+   Liste des rapports + feuille de rapport (écran & export) + détail
+===================================================================== */
+
+/* ---------- 10. Vue : Liste des rapports ---------- */
+function renderReports(v){
+  const q = ui.q.trim().toLowerCase();
+  let list = [...state.reports].sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0));
+  if(ui.typeFilter) list = list.filter(r => r.type === ui.typeFilter);
+  if(q) list = list.filter(r => [r.no, r.siteName, r.buildingName, r.equipmentDesc, r.tech]
+    .some(x => String(x||'').toLowerCase().includes(q)));
+
+  v.innerHTML = `
+    <div class="view-head">
+      <div><h1>Rapports d’intervention</h1><div class="sub">${state.reports.length} rapport(s) archivé(s) localement</div></div>
+      <div class="view-actions"><button class="btn primary" id="repNew">Nouveau rapport</button></div>
+    </div>
+    <div class="toolbar">
+      <input type="search" id="repQ" placeholder="Rechercher (n°, site, technicien…)" value="${esc(ui.q)}">
+      <select id="repType" class="mini" style="padding:7px 10px">
+        <option value="">Tous les types</option>
+        ${Object.entries(REPORT_TYPES).map(([k,l]) => `<option value="${k}" ${ui.typeFilter===k?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
+    <div class="tblwrap"><table class="tbl">
+      <thead><tr><th>N°</th><th>Date</th><th>Type</th><th>Objet</th><th>Technicien</th><th>Anomalies</th><th style="width:210px"></th></tr></thead>
+      <tbody>
+        ${list.length ? list.map(r => `
+          <tr>
+            <td class="no" data-open-r="${r.id}">${esc(r.no)}</td>
+            <td class="mono">${fmtDate(r.date)}</td>
+            <td>${esc(REPORT_TYPES[r.type]||r.type)}</td>
+            <td>${esc([r.siteName, r.buildingName].filter(Boolean).join(' — ') || '—')}${r.equipmentDesc ? `<div class="dim">${esc(r.equipmentDesc)}</div>` : ''}</td>
+            <td>${esc(r.tech||'—')}</td>
+            <td>${(r.anomalies||'').trim() ? '<span class="badge bad">Oui</span>' : '<span class="dim">Non</span>'}</td>
+            <td><div style="display:flex;gap:6px;justify-content:flex-end">
+              <button class="mini" data-open-r="${r.id}">Voir</button>
+              <button class="mini" data-pdf-r="${r.id}">PDF</button>
+              <button class="mini" data-docx-r="${r.id}">Word</button>
+              <button class="mini del" data-del-r="${r.id}">Suppr.</button>
+            </div></td>
+          </tr>`).join('')
+        : `<tr><td colspan="7"><div class="empty" style="padding:30px"><b>Aucun rapport</b><p>${q||ui.typeFilter ? 'Aucun résultat pour ces filtres.' : 'Créez votre premier rapport d’intervention.'}</p></div></td></tr>`}
+      </tbody>
+    </table></div>`;
+
+  v.querySelector('#repNew').onclick = () => openReportForm();
+  const qInput = v.querySelector('#repQ');
+  qInput.oninput = () => { ui.q = qInput.value; renderReports(v);
+    const nq = v.querySelector('#repQ'); nq.focus(); nq.setSelectionRange(nq.value.length, nq.value.length); };
+  v.querySelector('#repType').onchange = e => { ui.typeFilter = e.target.value; renderReports(v); };
+  v.querySelectorAll('[data-open-r]').forEach(b => b.onclick = () => go('report', { reportId:b.dataset.openR }));
+  v.querySelectorAll('[data-pdf-r]').forEach(b => b.onclick = () => exportPDF(b.dataset.pdfR));
+  v.querySelectorAll('[data-docx-r]').forEach(b => b.onclick = () => exportDOCX(b.dataset.docxR));
+  v.querySelectorAll('[data-del-r]').forEach(b => b.onclick = () => {
+    const r = state.reports.find(x => x.id === b.dataset.delR);
+    confirmBox('Supprimer le rapport', `Supprimer définitivement le rapport <b>${esc(r.no)}</b> ?`, () => {
+      state.reports = state.reports.filter(x => x.id !== r.id); save(); render();
+      toast('Rapport supprimé.', true);
+    });
+  });
+}
+
+/* ---------- 12. Feuille de rapport (réutilisée à l'écran et pour l'export) ---------- */
+function reportObjet(r){
+  const parts = [r.siteName, r.buildingName, r.equipmentDesc].filter(Boolean);
+  return parts.length ? parts.join(' — ') : '—';
+}
+
+function reportSheetHTML(r){
+  const pieces = (r.pieces || []);
+  const tests = (r.tests || []);
+  const batteries = (r.batteries || []);
+  const resColor = { conforme:'#2e7d4f', surveil:'#a86a08', nonconforme:'#c1272d', remplacer:'#c1272d' };
+  const resCell = res => `<td style="color:${resColor[res]||'#333'};font-weight:${res?'600':'400'}">${esc(TEST_RESULTS[res]||BATTERY_RESULTS[res]||'—')}</td>`;
+  return `
+  <div class="rp">
+    <div class="rp-head">
+      <div class="rp-brand"><span class="rp-mark"></span>FIREWISE — EQUIPMENT CARE</div>
+      <div class="rp-doc">
+        <div class="rp-title">RAPPORT D’INTERVENTION SSI</div>
+        <div class="rp-no">N° ${esc(r.no)}</div>
+      </div>
+    </div>
+    <table class="rp-meta">
+      <tr><th>Type</th><td>${esc(REPORT_TYPES[r.type]||'')}</td><th>Date</th><td>${fmtDate(r.date)}</td><th>Technicien</th><td>${esc(r.tech||'')}</td></tr>
+      <tr><th>Objet</th><td colspan="5">${esc(reportObjet(r))}</td></tr>
+    </table>
+    <div class="rp-sec"><h3>Matériel concerné & tests</h3>
+      ${tests.length ? `<table class="rp-pieces">
+        <tr><th>Matériel</th><th style="width:90px">Résultat</th><th>Observation</th></tr>
+        ${tests.map(t => `<tr><td>${esc(t.label)||'—'}</td>${resCell(t.res)}<td>${esc(t.note)||'—'}</td></tr>`).join('')}
+      </table>` : '<p>Aucun matériel concerné.</p>'}
+    </div>
+    <div class="rp-sec"><h3>Observations / constat</h3><p>${esc(r.obs) || '—'}</p></div>
+    <div class="rp-sec"><h3>Anomalies constatées</h3><p>${esc(r.anomalies) || 'Aucune anomalie relevée.'}</p></div>
+    <div class="rp-sec"><h3>Actions réalisées</h3><p>${esc(r.actions) || '—'}</p></div>
+    <div class="rp-sec"><h3>Pièces remplacées</h3>
+      ${pieces.length ? `<table class="rp-pieces">
+        <tr><th>Désignation</th><th>Référence</th><th style="width:60px">Qté</th></tr>
+        ${pieces.map(p => `<tr><td>${esc(p.d)}</td><td>${esc(p.r||'—')}</td><td>${esc(p.q||'—')}</td></tr>`).join('')}
+      </table>` : '<p>Aucune pièce remplacée.</p>'}
+    </div>
+    <div class="rp-sec"><h3>Mesures batteries</h3>
+      ${batteries.length ? `<table class="rp-pieces">
+        <tr><th>Matériel</th><th>Batteries</th><th>Charge (U / I)</th><th>Test (I absorbée · U t0 → t+1 h)</th><th>Capacité restante / autonomie</th><th>Résultat</th><th>Observation</th></tr>
+        ${batteries.map(b => {
+          const chargeTxt = [b.vch ? b.vch + ' V' : '', b.ich ? b.ich + ' A' : ''].filter(Boolean).join(' / ') || '—';
+          const batTxt = [b.bat, b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
+          const testTxt = [b.iabs ? 'I ' + b.iabs + ' A' : '', (b.ut0 || b.ut1) ? (b.ut0||'?') + ' → ' + (b.ut1||'?') + ' V' : ''].filter(Boolean).join(' · ') || '—';
+          const capTxt = [b.cmes ? b.cmes + ' % restant' : '', b.aut ? b.aut + ' h autonomie' : '', b.q1h ? b.q1h + ' Ah consommés (1 h)' : ''].filter(Boolean).join(' · ') || '—';
+          return `<tr><td>${esc(b.mat)||'—'}</td><td>${esc(batTxt)}</td><td>${esc(chargeTxt)}</td><td>${esc(testTxt)}</td><td>${esc(capTxt)}</td>${resCell(b.res)}<td>${esc(b.note)||'—'}</td></tr>`;
+        }).join('')}
+      </table>` : '<p>Aucune mesure de batterie relevée.</p>'}
+    </div>
+    <div class="rp-sec"><h3>Recommandations</h3><p>${esc(r.reco) || '—'}</p></div>
+    <div class="rp-sec"><h3>Prochaine visite</h3><p>${r.nextVisit ? fmtDate(r.nextVisit) : 'Non planifiée.'}</p></div>
+    <div class="rp-sigs">
+      <div class="rp-sig"><div class="cap">Signature du technicien</div>
+        ${r.sigTech ? `<img src="${r.sigTech}" alt="Signature technicien">` : '<span class="none">Non signé</span>'}</div>
+      <div class="rp-sig"><div class="cap">Signature du client / représentant</div>
+        ${r.sigClient ? `<img src="${r.sigClient}" alt="Signature client">` : '<span class="none">Non signé</span>'}</div>
+    </div>
+    <div class="rp-foot"><span>Document généré le ${fmtDate(todayISO())} par Firewise Equipment Care</span><span>N° ${esc(r.no)}</span></div>
+  </div>`;
+}
+
+function renderReportDetail(v){
+  const r = state.reports.find(x => x.id === ui.reportId);
+  if(!r){ go('reports'); return; }
+  v.innerHTML = `
+    <div id="reportDetailActions">
+      <button class="btn" id="rdBack">← Retour à la liste</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="rdEdit">Modifier</button>
+      <button class="btn primary" id="rdPdf">Exporter en PDF</button>
+      <button class="btn" id="rdDocx">Exporter en Word</button>
+      <button class="btn danger" id="rdDel">Supprimer</button>
+    </div>
+    <div class="report-sheet">${reportSheetHTML(r)}</div>`;
+  v.querySelector('#rdBack').onclick = () => go('reports');
+  v.querySelector('#rdEdit').onclick = () => openReportForm(r.id);
+  v.querySelector('#rdPdf').onclick = () => exportPDF(r.id);
+  v.querySelector('#rdDocx').onclick = () => exportDOCX(r.id);
+  v.querySelector('#rdDel').onclick = () => {
+    confirmBox('Supprimer le rapport', `Supprimer définitivement le rapport <b>${esc(r.no)}</b> ?`, () => {
+      state.reports = state.reports.filter(x => x.id !== r.id); save(); go('reports');
+      toast('Rapport supprimé.', true);
+    });
+  };
+}
+
+/* ===== FIN DE reports.js ===== */
+</script>
+<script>
+/* ===== reportform.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — reportform.js
+   Formulaire de rapport : liaison registre avec check-list complète du
+   matériel concerné, contenu, matériel testé, mesures batteries, signatures
+===================================================================== */
+
+/* ---------- 11. Formulaire de rapport (le cœur de l’app) ---------- */
+let pads = {}; // SignaturePad actifs de la modale courante
+
+function nextReportNo(){
+  const year = new Date().getFullYear();
+  let max = 0;
+  state.reports.forEach(r => {
+    const m = /^RPT-(\d{4})-(\d+)$/.exec(r.no || '');
+    if(m && +m[1] === year) max = Math.max(max, +m[2]);
+  });
+  return `RPT-${year}-${String(max + 1).padStart(4, '0')}`;
+}
+
+function eqDesc(e){
+  return `${typeLabel(e.type)} ${e.brand||''} ${e.model||''}`.trim() + (e.serial ? ` (NS ${e.serial})` : '');
+}
+
+function openReportForm(reportId){
+  pads = {};
+  const r = state.reports.find(x => x.id === reportId) || {};
+  const mode = r.linkMode || 'base';
+  const piecesHTML = (r.pieces && r.pieces.length ? r.pieces : [{}]).map(p => pieceRow(p)).join('');
+
+  openModal((r.id ? 'Modifier le rapport ' + r.no : 'Nouveau rapport — ' + nextReportNo()), `
+    <div class="fgrid">
+      <div class="field"><label>Type de rapport *</label>
+        <select id="f_type">${Object.entries(REPORT_TYPES).map(([k,l]) => `<option value="${k}" ${k===r.type?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Date d’intervention *</label><input type="date" id="f_date" value="${esc(r.date||todayISO())}"></div>
+      <div class="field full"><label>Technicien *</label><input id="f_tech" value="${esc(r.tech||'')}" placeholder="Nom et initiales"></div>
+    </div>
+    <fieldset class="fs"><legend>Liaison au registre</legend>
+      <div style="display:flex;gap:18px;margin-bottom:12px;font-size:13px">
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="f_linkmode" value="base" ${mode==='base'?'checked':''}> Lier au registre</label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="f_linkmode" value="free" ${mode==='free'?'checked':''}> Saisie libre (hors registre)</label>
+      </div>
+      <div id="lkBase" style="${mode==='free'?'display:none':''}">
+        <div class="fgrid">
+          <div class="field"><label>Site</label><select id="f_site"><option value="">—</option>${state.sites.map(s => `<option value="${s.id}" ${s.id===r.siteId?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>
+          <div class="field"><label>Bâtiment</label><select id="f_bld"><option value="">— tout le site —</option></select></div>
+        </div>
+        <div class="field"><label>Matériel concerné & tests</label>
+          <div id="f_eqBox" style="border:1px solid var(--line-2);border-radius:6px;max-height:340px;overflow-y:auto;background:#fff">
+            <div class="hint" style="padding:10px">Choisissez un site et un bâtiment pour lister son matériel.</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="mini" id="f_eqAll">Tout sélectionner</button>
+            <button type="button" class="mini" id="f_eqNone">Tout désélectionner</button>
+            <button type="button" class="mini" id="f_eqAddFree">+ Hors registre</button>
+            <span class="hint" id="f_eqCount" style="margin-left:auto"></span>
+          </div>
+          <span class="hint">Cochez le matériel concerné, puis saisissez le résultat du test et l'observation sur la même ligne.</span>
+        </div>
+        ${!state.sites.length ? '<p class="hint">Le registre est vide : créez un site, ou choisissez « saisie libre ».</p>' : ''}
+      </div>
+      <div id="lkFree" style="${mode==='base'?'display:none':''}">
+        <div class="fgrid">
+          <div class="field"><label>Site (texte libre)</label><input id="f_freeSite" value="${esc(r.siteName||'')}"></div>
+          <div class="field"><label>Bâtiment / zone</label><input id="f_freeBld" value="${esc(r.buildingName||'')}"></div>
+          <div class="field full"><label>Matériel décrit</label><input id="f_freeEq" value="${esc(r.equipmentDesc||'')}" placeholder="Ex. : Centrale de détection, local CMCF"></div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset class="fs"><legend>Contenu du rapport</legend>
+      <div class="field"><label>Observations / constat *</label><textarea id="f_obs">${esc(r.obs||'')}</textarea></div>
+      <div class="field"><label>Anomalies constatées</label><textarea id="f_ano" style="min-height:56px">${esc(r.anomalies||'')}</textarea></div>
+      <div class="field"><label>Actions réalisées</label><textarea id="f_act" style="min-height:56px">${esc(r.actions||'')}</textarea></div>
+      <div class="field"><label>Pièces remplacées</label>
+        <div id="piecesBox">${piecesHTML}</div>
+        <div><button type="button" class="mini" id="addPiece">+ Ajouter une pièce</button></div>
+      </div>
+      <div class="fgrid">
+        <div class="field"><label>Recommandations</label><textarea id="f_reco" style="min-height:52px">${esc(r.reco||'')}</textarea></div>
+        <div class="field"><label>Prochaine visite</label><input type="date" id="f_next" value="${esc(r.nextVisit||'')}"></div>
+      </div>
+    </fieldset>
+    ${batteriesFieldsetHTML(r)}
+    <fieldset class="fs"><legend>Signatures</legend>
+      <div class="fgrid">
+        <div class="field"><label>Technicien</label>
+          <div class="sigBox"><canvas id="sigTech" style="width:100%;height:140px;border:1px dashed var(--line-2);border-radius:6px;background:#fff;touch-action:none"></canvas>
+          <div style="margin-top:6px"><button type="button" class="mini" id="clearTech">Effacer</button></div></div></div>
+        <div class="field"><label>Client / représentant site</label>
+          <div class="sigBox"><canvas id="sigClient" style="width:100%;height:140px;border:1px dashed var(--line-2);border-radius:6px;background:#fff;touch-action:none"></canvas>
+          <div style="margin-top:6px"><button type="button" class="mini" id="clearClient">Effacer</button></div></div></div>
+      </div>
+    </fieldset>
+  `, true);
+
+  // --- signatures ---
+  function initPad(canvasId, existingData){
+    const cv = document.getElementById(canvasId);
+    if(typeof SignaturePad === 'undefined'){
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#8f9296'; ctx.font = '13px system-ui, sans-serif';
+      ctx.fillText('Bibliothèque de signature non chargée', 12, 30);
+      ctx.fillText('(connexion internet requise, rechargez la page)', 12, 50);
+      return null;
+    }
+    const rect = cv.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(rect.width * dpr); cv.height = Math.round(rect.height * dpr);
+    const pad = new SignaturePad(cv, { penColor:'#1e2022', backgroundColor:'rgb(255,255,255)' });
+    if(existingData) pad.fromDataURL(existingData, { ratio:1 });
+    return pad;
+  }
+  setTimeout(() => {
+    pads.tech = initPad('sigTech', r.sigTech);
+    pads.client = initPad('sigClient', r.sigClient);
+  }, 60);
+  modalBox.querySelector('#clearTech').onclick = () => pads.tech && pads.tech.clear();
+  modalBox.querySelector('#clearClient').onclick = () => pads.client && pads.client.clear();
+
+  // --- liaison registre / saisie libre ---
+  const linkRadios = modalBox.querySelectorAll('input[name="f_linkmode"]');
+  function syncLink(){
+    const free = modalBox.querySelector('input[name="f_linkmode"]:checked').value === 'free';
+    modalBox.querySelector('#lkBase').style.display = free ? 'none' : '';
+    modalBox.querySelector('#lkFree').style.display = free ? '' : 'none';
+  }
+  linkRadios.forEach(rd => rd.onchange = syncLink);
+
+  // --- cascades + check-list « Matériel concerné » ---
+  const siteSel = modalBox.querySelector('#f_site'), bldSel = modalBox.querySelector('#f_bld');
+
+  // --- check-list unifiée « Matériel concerné & tests » ---
+  // Chaque ligne : [checkbox] libellé + note + résultat (fusion de l'ancienne
+  // check-list et de la section « Matériel testé » — plus de doublon).
+  function eqTestRowHTML(e, checked, test){
+    const t = test || {};
+    const isFree = !e;
+    const label = e ? eqDesc(e) : (t.label || '');
+    const sub = e ? `${esc(e.loc||'Localisation non renseignée')}${e.serial ? ' · NS ' + esc(e.serial) : ''}` : '';
+    const resVal = t.res || 'nonteste';
+    return `
+      <div class="eqRow" data-eqid="${e ? e.id : ''}" style="display:grid;grid-template-columns:24px 1fr 130px;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);align-items:flex-start;font-size:13px">
+        ${isFree
+          ? `<button type="button" class="mini del eqDel" style="margin-top:0;padding:0;width:22px;height:22px;line-height:1">×</button>`
+          : `<input type="checkbox" class="f_eqChk" value="${e.id}" ${checked ? 'checked' : ''} style="margin-top:3px">`}
+        <div>
+          ${isFree
+            ? `<input class="t_free" placeholder="Désignation du matériel (saisie libre)" value="${esc(label)}" style="width:100%;font-weight:600;border:none;background:transparent;padding:0;font-size:13px">`
+            : `<b>${esc(label)}</b><br><span style="color:var(--ink-3);font-size:12px">${sub}</span>`}
+          <input class="t_note" placeholder="Test réalisé / observation" value="${esc(t.note||'')}" style="margin-top:4px;width:100%">
+        </div>
+        <select class="t_res">
+          <option value="nonteste" ${resVal==='nonteste'?'selected':''}>Non testé</option>
+          ${Object.entries(TEST_RESULTS).map(([v,l]) => `<option value="${v}" ${v===resVal?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>`;
+  }
+  function updateEqCount(){
+    const all = modalBox.querySelectorAll('#f_eqBox .f_eqChk');
+    const n = modalBox.querySelectorAll('#f_eqBox .f_eqChk:checked').length;
+    modalBox.querySelector('#f_eqCount').textContent = all.length ? `${n}/${all.length} sélectionné(s)` : '';
+  }
+  // Capture l'état courant du formulaire (pour préserver les saisies quand
+  // le site/bâtiment change et re-render la liste).
+  function captureEqState(){
+    const cur = { checked:new Set(), tests:{}, free:[] };
+    modalBox.querySelectorAll('#f_eqBox .eqRow').forEach(row => {
+      const eqId = row.dataset.eqid;
+      const chk = row.querySelector('.f_eqChk');
+      const res = row.querySelector('.t_res').value;
+      const note = row.querySelector('.t_note').value.trim();
+      if(eqId){
+        if(chk && chk.checked) cur.checked.add(eqId);
+        cur.tests[eqId] = { res, note };
+      } else {
+        cur.free.push({ label: row.querySelector('.t_free').value.trim(), res, note });
+      }
+    });
+    return cur;
+  }
+  function wireEqRows(){
+    modalBox.querySelectorAll('#f_eqBox .eqRow').forEach(row => {
+      const chk = row.querySelector('.f_eqChk');
+      const res = row.querySelector('.t_res');
+      const note = row.querySelector('.t_note');
+      const del = row.querySelector('.eqDel');
+      const syncRow = () => {
+        if(chk){
+          const on = chk.checked;
+          row.style.opacity = on ? '1' : '0.45';
+          if(res) res.disabled = !on;
+          if(note) note.disabled = !on;
+        }
+      };
+      if(chk) chk.onchange = () => { syncRow(); updateEqCount(); };
+      if(del) del.onclick = () => { row.remove(); updateEqCount(); };
+      syncRow();
+    });
+  }
+  function fillEq(){
+    const sid = siteSel.value, bid = bldSel.value;
+    const es = state.equipment.filter(e => e.siteId === sid && (!bid || e.buildingId === bid));
+    const box = modalBox.querySelector('#f_eqBox');
+    // État courant du formulaire (si la liste a déjà des lignes) ou état sauvegardé
+    const hasRows = !!box.querySelector('.eqRow');
+    const cur = hasRows ? captureEqState() : null;
+    const savedIds = r.id && Array.isArray(r.equipmentIds) ? new Set(r.equipmentIds) : null;
+    const savedTests = {};
+    if(r.tests) r.tests.forEach(t => { if(t.eqId) savedTests[t.eqId] = t; });
+    const savedFree = r.tests ? r.tests.filter(t => !t.eqId) : [];
+
+    let html = '';
+    if(es.length){
+      html += es.map(e => {
+        let checked, test;
+        if(cur && cur.tests[e.id]){
+          checked = cur.checked.has(e.id);
+          test = cur.tests[e.id];
+        } else if(savedIds){
+          checked = savedIds.has(e.id);
+          test = savedTests[e.id] || { res:'nonteste' };
+        } else {
+          checked = true;            // nouveau rapport : tout coché par défaut
+          test = { res:'nonteste' };
+        }
+        return eqTestRowHTML(e, checked, test);
+      }).join('');
+    }
+    // Lignes hors registre : préserver l'état courant, sinon restaurer les sauvegardées
+    const freeRows = cur ? cur.free : savedFree;
+    freeRows.forEach(t => { html += eqTestRowHTML(null, true, t); });
+
+    if(!html){
+      html = '<div class="hint" style="padding:10px">Aucun matériel dans ce périmètre : ajoutez-en au registre, ou cliquez « + Hors registre ».</div>';
+    }
+    box.innerHTML = html;
+    wireEqRows();
+    updateEqCount();
+  }
+  function fillBld(keep){
+    const bs = state.buildings.filter(b => b.siteId === siteSel.value);
+    bldSel.innerHTML = '<option value="">— tout le site —</option>'
+      + bs.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+    if(keep && bs.find(b => b.id === keep)) bldSel.value = keep;
+    fillEq();
+  }
+  siteSel.onchange = () => fillBld();
+  bldSel.onchange = () => fillEq();
+  function setAllEq(checked){
+    modalBox.querySelectorAll('#f_eqBox .f_eqChk').forEach(c => {
+      c.checked = checked;
+      const row = c.closest('.eqRow');
+      row.style.opacity = checked ? '1' : '0.45';
+      row.querySelector('.t_res').disabled = !checked;
+      row.querySelector('.t_note').disabled = !checked;
+    });
+    updateEqCount();
+  }
+  modalBox.querySelector('#f_eqAll').onclick = () => setAllEq(true);
+  modalBox.querySelector('#f_eqNone').onclick = () => setAllEq(false);
+  modalBox.querySelector('#f_eqAddFree').onclick = () => {
+    const box = modalBox.querySelector('#f_eqBox');
+    const hint = box.querySelector('.hint');
+    if(hint) hint.remove();
+    box.insertAdjacentHTML('beforeend', eqTestRowHTML(null, true, { res:'nonteste' }));
+    wireEqRows();
+  };
+  if(mode === 'base'){
+    fillBld(r.buildingId);
+  } else {
+    // Mode saisie libre : charger les lignes hors registre sauvegardées (cachées dans #lkBase)
+    const savedFree = (r.tests || []).filter(t => !t.eqId);
+    if(savedFree.length){
+      const box = modalBox.querySelector('#f_eqBox');
+      box.innerHTML = savedFree.map(t => eqTestRowHTML(null, true, t)).join('');
+      wireEqRows();
+    }
+  }
+
+  // --- pièces ---
+  function pieceRow(p = {}){
+    return `<div class="pieceRow" style="display:grid;grid-template-columns:1fr 130px 56px 30px;gap:8px;margin-bottom:8px">
+      <input class="p_d" placeholder="Désignation" value="${esc(p.d||'')}">
+      <input class="p_r" placeholder="Référence" value="${esc(p.r||'')}">
+      <input class="p_q" placeholder="Qté" value="${esc(p.q||'')}">
+      <button type="button" class="mini del p_del" title="Retirer">×</button></div>`;
+  }
+  modalBox.querySelector('#addPiece').onclick = () => {
+    const box = modalBox.querySelector('#piecesBox');
+    box.insertAdjacentHTML('beforeend', pieceRow());
+    wirePieceDels();
+  };
+  function wirePieceDels(){
+    modalBox.querySelectorAll('.p_del').forEach(b => b.onclick = () => b.closest('.pieceRow').remove());
+  }
+  wirePieceDels();
+
+  // --- matériel testé + mesures batteries (reportrows.js) ---
+  wireReportRows();
+
+  // --- enregistrement ---
+  const submit = formFooter(r.id ? 'Enregistrer le rapport' : 'Créer le rapport');
+  submit.onclick = () => {
+    const type = modalBox.querySelector('#f_type').value;
+    const date = modalBox.querySelector('#f_date').value;
+    const tech = modalBox.querySelector('#f_tech').value.trim();
+    const obs  = modalBox.querySelector('#f_obs').value.trim();
+    const linkMode = modalBox.querySelector('input[name="f_linkmode"]:checked').value;
+
+    if(!date){ markInvalid(modalBox.querySelector('#f_date')); return toast('La date est obligatoire.'); }
+    if(!tech){ markInvalid(modalBox.querySelector('#f_tech')); return toast('Le nom du technicien est obligatoire.'); }
+    if(!obs){ markInvalid(modalBox.querySelector('#f_obs')); return toast('Les observations sont obligatoires.'); }
+
+    let link = { siteId:null, buildingId:null, equipmentId:null, equipmentIds:[], siteName:'', buildingName:'', equipmentDesc:'', equipmentList:[] };
+    if(linkMode === 'base'){
+      if(!siteSel.value){ markInvalid(siteSel); return toast('Sélectionnez un site ou passez en saisie libre.'); }
+      const s = state.sites.find(x => x.id === siteSel.value);
+      const b = state.buildings.find(x => x.id === bldSel.value);
+      const checkedEqs = [...modalBox.querySelectorAll('#f_eqBox .f_eqChk:checked')]
+        .map(c => state.equipment.find(x => x.id === c.value)).filter(Boolean);
+      link = {
+        siteId:s.id, buildingId:b ? b.id : null,
+        equipmentId:checkedEqs[0] ? checkedEqs[0].id : null,
+        equipmentIds: checkedEqs.map(e => e.id),
+        siteName:s.name, buildingName:b ? b.name : '',
+        equipmentDesc: checkedEqs.length === 1 ? eqDesc(checkedEqs[0])
+                     : checkedEqs.length ? `${checkedEqs.length} matériel(s) concerné(s)` : '',
+        equipmentList: checkedEqs.map(e => eqFullLabel(e)),
+      };
+    } else {
+      link.siteName  = modalBox.querySelector('#f_freeSite').value.trim();
+      link.buildingName = modalBox.querySelector('#f_freeBld').value.trim();
+      link.equipmentDesc = modalBox.querySelector('#f_freeEq').value.trim();
+      if(!link.siteName){ markInvalid(modalBox.querySelector('#f_freeSite')); return toast('Indiquez au moins le site (texte libre).'); }
+    }
+
+    const pieces = [];
+    modalBox.querySelectorAll('.pieceRow').forEach(row => {
+      const d = row.querySelector('.p_d').value.trim();
+      if(d) pieces.push({ d, r:row.querySelector('.p_r').value.trim(), q:row.querySelector('.p_q').value.trim() });
+    });
+
+    const data = {
+      type, date, tech, linkMode, ...link, obs,
+      anomalies:modalBox.querySelector('#f_ano').value.trim(),
+      actions:modalBox.querySelector('#f_act').value.trim(),
+      reco:modalBox.querySelector('#f_reco').value.trim(),
+      nextVisit:modalBox.querySelector('#f_next').value,
+      pieces,
+      tests:collectTests(),
+      batteries:collectBatteries(),
+      sigTech:(pads.tech && !pads.tech.isEmpty()) ? pads.tech.toDataURL('image/png') : null,
+      sigClient:(pads.client && !pads.client.isEmpty()) ? pads.client.toDataURL('image/png') : null,
+    };
+
+    if(r.id){
+      Object.assign(state.reports.find(x => x.id === r.id), data);
+    } else {
+      const nr = { id:uid(), no:nextReportNo(), createdAt:Date.now(), ...data };
+      state.reports.push(nr);
+      ui.reportId = nr.id;
+    }
+    save(); closeModal(); render();
+    toast(r.id ? 'Rapport mis à jour.' : 'Rapport créé.', true);
+  };
+}
+
+/* ===== FIN DE reportform.js ===== */
+</script>
+<script>
+/* ===== reportrows.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — reportrows.js
+   Sections dynamiques du rapport :
+   - matériel concerné & tests : fusionné dans la check-list (reportform.js)
+     → chaque ligne = [checkbox] + libellé + résultat + observation
+   - mesures batteries — protocole NF S 61-930 / EN 54-4 :
+       · contrôle de charge (tension de flottement, courant de charge)
+       · coupure secteur : intensité absorbée par le matériel + U à t0
+       · après 1 h : U à t+1 h
+       · calculs automatiques :
+           Ah consommés (1 h)   = I absorbée × 1 h
+           capacité restante (%) = f(U t+1 h) — table indicative bloc 12 V plomb
+           autonomie estimée (h) = capacité restante (Ah) / I absorbée
+           résultat proposé comparé à l'autonomie requise
+===================================================================== */
+
+const TEST_RESULTS = { conforme:'Conforme', surveil:'À surveiller', nonconforme:'Non conforme' };
+const BATTERY_RESULTS = { conforme:'Conforme', surveil:'À surveiller', remplacer:'À remplacer' };
+
+// Estimation indicative de l'état de charge d'un bloc 12 V plomb
+// d'après la tension mesurée (valeurs approchées, matériel en fonctionnement)
+const SOC_TABLE = [
+  [12.7, 100],
+  [12.5, 80],
+  [12.3, 60],
+  [12.1, 40],
+  [11.9, 20],
+  [11.7, 0],
+];
+function socFromU(u, unom){
+  if(u === null || !(unom > 0)) return null;
+  const ub = u * 12 / unom; // normalise à un bloc 12 V (ex. : 24,9 V → 12,45 V)
+  if(ub >= SOC_TABLE[0][0]) return 100;
+  if(ub <= SOC_TABLE[SOC_TABLE.length - 1][0]) return 0;
+  for(let i = 0; i < SOC_TABLE.length - 1; i++){
+    const uh = SOC_TABLE[i][0], sh = SOC_TABLE[i][1];
+    const ub2 = SOC_TABLE[i+1][0], sb = SOC_TABLE[i+1][1];
+    if(ub <= uh && ub >= ub2){
+      return Math.round((sb + (ub - ub2) / (uh - ub2) * (sh - sb)) * 10) / 10;
+    }
+  }
+  return null;
+}
+
+// Libellé complet d'un matériel du registre (avec site, bâtiment, localisation)
+function eqFullLabel(e){
+  const s = state.sites.find(x => x.id === e.siteId);
+  const b = state.buildings.find(x => x.id === e.buildingId);
+  const loc = [s ? s.name : '', b ? b.name : '', e.loc || ''].filter(Boolean).join(' · ');
+  return eqDesc(e) + (loc ? ' — ' + loc : '');
+}
+
+/* ---------- Mesures batteries (protocole complet) ---------- */
+function batteriesFieldsetHTML(r){
+  const rows = (r.batteries && r.batteries.length ? r.batteries : [{}]);
+  return `
+    <fieldset class="fs"><legend>Mesures batteries — autonomie (NF S 61-930)</legend>
+      <p class="hint" style="margin-bottom:10px">
+        <b>Protocole :</b> 1) secteur présent — relever tension/courant de charge (flottement ≈ 13,5–13,8 V par bloc 12 V) ;
+        2) secteur coupé — relever l’<b>intensité absorbée par le matériel</b> et la tension à <b>t0</b> ;
+        3) après <b>1 h</b> — relever la tension à <b>t+1 h</b>.<br>
+        <b>Calculs automatiques :</b> Ah consommés = I absorbée × 1 h ; capacité restante estimée d'après la tension
+        (table indicative bloc 12 V plomb) ; autonomie estimée = capacité restante / I absorbée, comparée à
+        l'autonomie requise (≥ 100 % → conforme, ≥ 80 % → à surveiller). Estimation indicative : se référer
+        aux tables constructeur pour un contrôle certifié.
+      </p>
+      <div id="batteriesBox">${rows.map(b => batteryRowHTML(b)).join('')}</div>
+      <div><button type="button" class="mini" id="addBattery">+ Ajouter des mesures</button></div>
+    </fieldset>`;
+}
+
+function batteryRowHTML(b = {}){
+  const ro = 'readonly style="background:#f2f1ef;color:var(--ink-2)"';
+  return `
+    <div class="batRow" style="border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input class="b_mat" placeholder="Matériel concerné (ex. : CDS boucles 1-2)" value="${esc(b.mat||'')}">
+        <input class="b_bat" placeholder="Batteries (ex. : 2 × 12 V / 12 Ah)" value="${esc(b.bat||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_cnom" inputmode="decimal" placeholder="Capacité nominale (Ah)" value="${esc(b.cnom||'')}">
+        <input class="b_unom" inputmode="decimal" placeholder="Tension nominale (12 ou 24 V)" value="${esc(b.unom||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_vch" inputmode="decimal" placeholder="Tension de charge — secteur (V)" value="${esc(b.vch||'')}">
+        <input class="b_ich" inputmode="decimal" placeholder="Courant de charge — secteur (A)" value="${esc(b.ich||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_iabs" inputmode="decimal" placeholder="Intensité absorbée (A) — secteur coupé" value="${esc(b.iabs||'')}">
+        <input class="b_ut0" inputmode="decimal" placeholder="Tension à t0 (V)" value="${esc(b.ut0||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_ut1" inputmode="decimal" placeholder="Tension à t+1 h (V)" value="${esc(b.ut1||'')}">
+        <input class="b_areq" inputmode="decimal" placeholder="Autonomie requise (h)" value="${esc(b.areq||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_cmes" ${ro} placeholder="Capacité restante (%) — auto" value="${esc(b.cmes||'')}">
+        <input class="b_aut" ${ro} placeholder="Autonomie estimée (h) — auto" value="${esc(b.aut||'')}">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px">
+        <input class="b_q1h" ${ro} placeholder="Consommé pendant le test (Ah) — auto" value="${esc(b.q1h||'')}">
+        <select class="b_res">
+          <option value="nonteste" ${(!b.res || b.res === 'nonteste') ? 'selected' : ''}>Non testé</option>
+          ${Object.entries(BATTERY_RESULTS).map(([v,l]) => `<option value="${v}" ${v===b.res?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <input class="b_note" placeholder="Observation (ex. : U(t+1h) au-dessus de la tension finale)" style="margin-top:6px" value="${esc(b.note||'')}">
+      <div style="text-align:right;margin-top:6px"><button type="button" class="mini del b_del">Retirer</button></div>
+    </div>`;
+}
+
+// Calculs automatiques de la ligne batteries
+function batCompute(row){
+  const num = sel => {
+    const v = (row.querySelector(sel).value || '').trim().replace(',', '.');
+    const n = parseFloat(v);
+    return isFinite(n) ? n : null;
+  };
+  const cn = num('.b_cnom');   // capacité nominale (Ah)
+  const un = num('.b_unom');   // tension nominale (V)
+  const ia = num('.b_iabs');   // intensité absorbée (A)
+  const ar = num('.b_areq');   // autonomie requise (h)
+  const u0 = num('.b_ut0'), u1 = num('.b_ut1');
+
+  // Capacité restante estimée (%) d'après U(t+1h), ou U(t0) si absente
+  const soc = socFromU(u1 !== null ? u1 : u0, un || 12);
+  if(soc !== null) row.querySelector('.b_cmes').value = String(soc);
+
+  // Ah consommés pendant le test = I absorbée × 1 h
+  const q = (ia !== null) ? ia * 1 : null;
+  if(q !== null) row.querySelector('.b_q1h').value = String(Math.round(q * 100) / 100);
+
+  // Autonomie estimée (h) = capacité restante (Ah) / I absorbée
+  let aut = null;
+  if(soc !== null && ia !== null && ia > 0 && cn && cn > 0){
+    aut = (soc / 100 * cn) / ia;
+    row.querySelector('.b_aut').value = String(Math.round(aut * 10) / 10);
+  }
+
+  // Proposition de résultat vs autonomie requise (sans écraser un choix manuel)
+  const resSel = row.querySelector('.b_res');
+  if(resSel.value === 'nonteste' || resSel.value === ''){
+    if(aut !== null && ar && ar > 0){
+      resSel.value = aut >= ar ? 'conforme' : (aut >= ar * 0.8 ? 'surveil' : 'remplacer');
+    }
+  }
+}
+
+function wireBatteryRow(row){
+  row.querySelector('.b_del').onclick = () => row.remove();
+  ['.b_iabs', '.b_cnom', '.b_unom', '.b_ut0', '.b_ut1', '.b_areq'].forEach(c =>
+    row.querySelector(c).addEventListener('input', () => batCompute(row)));
+  batCompute(row);
+}
+
+/* ---------- Câblage & collecte ---------- */
+function wireReportRows(){
+  // Les lignes batteries (le matériel concerné & tests est câblé dans reportform.js)
+  modalBox.querySelectorAll('.batRow').forEach(wireBatteryRow);
+  modalBox.querySelector('#addBattery').onclick = () => {
+    const box = modalBox.querySelector('#batteriesBox');
+    box.insertAdjacentHTML('beforeend', batteryRowHTML());
+    wireBatteryRow(box.lastElementChild);
+  };
+}
+
+// Collecte du matériel concerné & tests depuis les lignes unifiées (#f_eqBox)
+function collectTests(){
+  const linkMode = (modalBox.querySelector('input[name="f_linkmode"]:checked') || {}).value;
+  const out = [];
+  modalBox.querySelectorAll('#f_eqBox .eqRow').forEach(row => {
+    const eqId = row.dataset.eqid || null;
+    if(eqId){
+      // Ligne registre : incluse seulement en mode base et si cochée
+      if(linkMode !== 'base') return;
+      const chk = row.querySelector('.f_eqChk');
+      if(chk && !chk.checked) return;
+    }
+    const res = row.querySelector('.t_res').value || 'nonteste';
+    const note = row.querySelector('.t_note').value.trim();
+    let label = '';
+    if(eqId){
+      const e = state.equipment.find(x => x.id === eqId);
+      if(e) label = eqFullLabel(e);
+    } else {
+      label = row.querySelector('.t_free').value.trim();
+    }
+    if(label || note) out.push({ eqId, label, res, note });
+  });
+  return out;
+}
+
+function collectBatteries(){
+  const out = [];
+  modalBox.querySelectorAll('.batRow').forEach(row => {
+    const g = c => row.querySelector(c).value.trim();
+    const item = {
+      mat:g('.b_mat'), bat:g('.b_bat'),
+      cnom:g('.b_cnom'), unom:g('.b_unom'),
+      vch:g('.b_vch'), ich:g('.b_ich'),
+      iabs:g('.b_iabs'), ut0:g('.b_ut0'), ut1:g('.b_ut1'),
+      areq:g('.b_areq'),
+      cmes:g('.b_cmes'), aut:g('.b_aut'), q1h:g('.b_q1h'),
+      res:g('.b_res') || 'nonteste', note:g('.b_note'),
+    };
+    if(item.mat || item.bat || item.cnom || item.unom || item.vch || item.ich ||
+       item.iabs || item.ut0 || item.ut1 || item.areq || item.cmes || item.aut ||
+       item.q1h || item.note) out.push(item);
+  });
+  return out;
+}
+
+/* ===== FIN DE reportrows.js ===== */
+
+</script>
+<script>
+/* ===== exports.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — exports.js
+   Exports : PDF (html2pdf.js) et Word .docx (docx.js)
+   Inclut : pièces, matériel testé, mesures batteries, signatures
+===================================================================== */
+
+/* ---------- 13. Exports (PDF / Word) ---------- */
+function exportPDF(reportId){
+  const r = state.reports.find(x => x.id === reportId);
+  if(!r) return;
+  if(typeof html2pdf === 'undefined'){ return toast('Bibliothèque PDF non chargée : vérifiez votre connexion réseau.'); }
+  const pa = document.getElementById('printArea');
+  pa.innerHTML = `<div class="rp-wrap" style="background:#fff;padding:26px 30px">${reportSheetHTML(r)}</div>`;
+  html2pdf().set({
+    margin:[8,8,8,8],
+    filename:`${r.no}-${slug(REPORT_TYPES[r.type]||'rapport')}.pdf`,
+    image:{ type:'jpeg', quality:0.96 },
+    html2canvas:{ scale:2, useCORS:true, backgroundColor:'#ffffff' },
+    jsPDF:{ unit:'mm', format:'a4', orientation:'portrait' },
+    pagebreak:{ mode:['css','legacy'] },
+  }).from(pa.firstChild).save()
+    .then(() => { pa.innerHTML = ''; toast('PDF généré.', true); })
+    .catch(() => { pa.innerHTML = ''; toast('Échec de la génération PDF.'); });
+}
+
+function b64ToU8(b64){
+  const bin = atob(String(b64).split(',')[1] || '');
+  const u = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+
+function exportDOCX(reportId){
+  const r = state.reports.find(x => x.id === reportId);
+  if(!r) return;
+  const D = window.docx;
+  if(!D || !D.Document){ return toast('Bibliothèque Word non chargée : vérifiez votre connexion réseau.'); }
+
+  const border = { style: D.BorderStyle.SINGLE, size: 4, color: '444444' };
+  const cellBorders = { top:border, bottom:border, left:border, right:border };
+  const cell = (text, opts = {}) => new D.TableCell({
+    borders: cellBorders,
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    width: opts.w ? { size: opts.w, type: D.WidthType.PERCENTAGE } : undefined,
+    shading: opts.head ? { fill: 'EFECEB' } : undefined,
+    children: [new D.Paragraph({ children: [new D.TextRun({ text: text || '—', bold: !!opts.head, size: opts.head ? 19 : 20 })] })],
+  });
+  const sec = title => new D.Paragraph({
+    spacing: { before: 220, after: 90 },
+    border: { bottom: { style: D.BorderStyle.SINGLE, size: 4, color: '555555' } },
+    children: [new D.TextRun({ text: title.toUpperCase(), bold: true, size: 19, color: '444444' })],
+  });
+  const para = (t, opts = {}) => new D.Paragraph({
+    spacing: { after: 60 },
+    children: [new D.TextRun({ text: t || '—', size: 20, italics: !!opts.i })],
+  });
+  const img = data => new D.Paragraph({
+    children: [new D.ImageRun({ data: b64ToU8(data), transformation: { width: 220, height: 68 } })],
+  });
+
+  const pieces = (r.pieces || []);
+  const tests = (r.tests || []);
+  const batteries = (r.batteries || []);
+
+  const piecesTable = new D.Table({
+    width: { size: 100, type: D.WidthType.PERCENTAGE },
+    rows: [
+      new D.TableRow({ tableHeader: true, children: [cell('Désignation', { head:true }), cell('Référence', { head:true }), cell('Qté', { head:true, w:12 })] }),
+      ...(pieces.length ? pieces.map(p => new D.TableRow({ children: [cell(p.d), cell(p.r), cell(p.q)] }))
+        : [new D.TableRow({ children: [cell('Aucune pièce remplacée'), cell(''), cell('')] })]),
+    ],
+  });
+
+  const testedTable = new D.Table({
+    width: { size: 100, type: D.WidthType.PERCENTAGE },
+    rows: [
+      new D.TableRow({ tableHeader: true, children: [cell('Matériel', { head:true }), cell('Résultat', { head:true, w:18 }), cell('Observation', { head:true })] }),
+      ...(tests.length ? tests.map(t => new D.TableRow({ children: [cell(t.label), cell(TEST_RESULTS[t.res]||'—'), cell(t.note)] }))
+        : [new D.TableRow({ children: [cell('Aucun matériel concerné'), cell(''), cell('')] })]),
+    ],
+  });
+
+    const batteriesTable = new D.Table({
+    width: { size: 100, type: D.WidthType.PERCENTAGE },
+    rows: [
+      new D.TableRow({ tableHeader: true, children: [
+        cell('Matériel', { head:true }), cell('Batteries', { head:true }),
+        cell('Charge (U / I)', { head:true, w:12 }),
+        cell('Test (I absorbée · U t0→t1h)', { head:true, w:16 }),
+        cell('Capacité restante / autonomie', { head:true, w:16 }),
+        cell('Résultat', { head:true, w:13 }),
+        cell('Observation', { head:true }),
+      ]}),
+      ...(batteries.length ? batteries.map(b => {
+        const chargeTxt = [b.vch ? b.vch + ' V' : '', b.ich ? b.ich + ' A' : ''].filter(Boolean).join(' / ') || '—';
+        const batTxt = [b.bat, b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
+        const testTxt = [b.iabs ? 'I ' + b.iabs + ' A' : '', (b.ut0 || b.ut1) ? (b.ut0||'?') + ' → ' + (b.ut1||'?') + ' V' : ''].filter(Boolean).join(' · ') || '—';
+        const capTxt = [b.cmes ? b.cmes + ' % restant' : '', b.aut ? b.aut + ' h autonomie' : '', b.q1h ? b.q1h + ' Ah consommés (1 h)' : ''].filter(Boolean).join(' · ') || '—';
+        return new D.TableRow({ children: [
+          cell(b.mat), cell(batTxt), cell(chargeTxt), cell(testTxt), cell(capTxt),
+          cell(BATTERY_RESULTS[b.res]||'Non testé'), cell(b.note),
+        ]});
+      }) : [new D.TableRow({ children: [cell('Aucune mesure relevée'), cell(''), cell(''), cell(''), cell(''), cell(''), cell('')] })]),
+    ],
+  });
+
+  const children = [
+    new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing:{ after: 40 },
+      children: [new D.TextRun({ text: "RAPPORT D'INTERVENTION SSI", bold: true, size: 34 })] }),
+    new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing:{ after: 240 },
+      children: [new D.TextRun({ text: `${r.no} — ${REPORT_TYPES[r.type]||''}`, bold: true, size: 22, color: 'C1272D' })] }),
+    sec('Informations'),
+    new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: [
+      new D.TableRow({ children: [cell('Date', { head:true, w:16 }), cell(fmtDate(r.date), { w:34 }), cell('Technicien', { head:true, w:16 }), cell(r.tech, { w:34 })] }),
+      new D.TableRow({ children: [cell('Objet', { head:true, w:16 }), cell(reportObjet(r))] }),
+    ]}),
+    sec('Matériel concerné & tests'), testedTable,
+    sec('Observations / constat'), para(r.obs),
+    sec('Anomalies constatées'), para(r.anomalies || 'Aucune anomalie relevée.'),
+    sec('Actions réalisées'), para(r.actions),
+    sec('Pièces remplacées'), piecesTable,
+    sec('Mesures batteries'), batteriesTable,
+    sec('Recommandations'), para(r.reco),
+    sec('Prochaine visite'), para(r.nextVisit ? fmtDate(r.nextVisit) : 'Non planifiée.'),
+    sec('Signatures'),
+    new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: [
+      new D.TableRow({ children: [
+        new D.TableCell({ borders: cellBorders, margins:{ top:60,bottom:60,left:100,right:100 },
+          children: [new D.Paragraph({ children:[new D.TextRun({ text:'Technicien', bold:true, size:18, color:'555555' })] }),
+                     ...(r.sigTech ? [img(r.sigTech)] : [para('Non signé', { i:true })])] }),
+        new D.TableCell({ borders: cellBorders, margins:{ top:60,bottom:60,left:100,right:100 },
+          children: [new D.Paragraph({ children:[new D.TextRun({ text:'Client / représentant', bold:true, size:18, color:'555555' })] }),
+                     ...(r.sigClient ? [img(r.sigClient)] : [para('Non signé', { i:true })])] }),
+      ]}),
+    ]}),
+    new D.Paragraph({ spacing:{ before: 200 }, children: [new D.TextRun({
+      text: `Document généré le ${fmtDate(todayISO())} par Firewise Equipment Care — ${r.no}`,
+      size: 16, color: '888888' })] }),
+  ];
+
+  try{
+    const doc = new D.Document({ sections: [{ properties: {}, children }] });
+    D.Packer.toBlob(doc).then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${r.no}-${slug(REPORT_TYPES[r.type]||'rapport')}.docx`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast('Document Word généré.', true);
+    }).catch(() => toast('Échec de la génération Word.'));
+  }catch(e){
+    toast('Échec de la génération Word : ' + e.message);
+  }
+}
+
+/* ===== FIN DE exports.js ===== */
+</script>
+<script>
+/* ===== settings.js ===== */
+/* =====================================================================
+   FIREWISE EQUIPMENT CARE — settings.js
+   Réglages (sauvegardes, démonstration) et démarrage de l'application
+===================================================================== */
+
+/* ---------- 14. Vue : Réglages ---------- */
+function renderSettings(v){
+  v.innerHTML = `
+    <div class="view-head"><div><h1>Réglages</h1><div class="sub">Données locales, sauvegardes et démonstration</div></div></div>
+    <div class="dash-grid">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+          <div class="panel-h"><h2>Sauvegarde & restauration</h2></div>
+          <div class="panel-b" style="padding-top:14px">
+            <p class="hint" style="margin-bottom:14px">Toutes les données (sites, matériel, catalogue marques/références, photos, rapports) sont stockées dans le navigateur, rien ne quitte cet appareil. Exportez régulièrement un fichier de sauvegarde.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="stExpJson">Exporter la sauvegarde (.json)</button>
+              <button class="btn" id="stImpJson">Importer une sauvegarde</button>
+              <button class="btn" id="stExpCsv">Exporter le registre (.csv)</button>
+              <input type="file" id="stFile" accept="application/json" style="display:none">
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Zone sensible</h2></div>
+          <div class="panel-b" style="padding-top:14px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="stDemo">Charger le jeu de démonstration</button>
+              <button class="btn danger" id="stReset">Tout effacer</button>
+            </div>
+            <p class="hint" style="margin-top:12px">« Tout effacer » supprime définitivement sites, bâtiments, matériel, catalogue et rapports de cet appareil.</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>À propos</h2></div>
+        <div class="panel-b" style="padding-top:14px;line-height:1.8;font-size:13px;color:var(--ink-2)">
+          <p><b style="color:var(--ink)">Firewise Equipment Care — v1.1</b><br>
+          Application autonome de gestion et de suivi du matériel SSI : registre hiérarchique, catalogue marques/références auto-alimenté, photos d’identification, rapports d’intervention signés, exports PDF et Word.</p>
+          <p style="margin-top:10px">Bibliothèques via CDN (signature_pad, html2pdf.js, docx.js) · aucune donnée transmise à un serveur.</p>
+          <p style="margin-top:10px">Astuce : sur Android, ouvrez cette application dans Chrome puis utilisez « Ajouter à l’écran d’accueil » pour l’utiliser comme une application.</p>
+        </div>
+      </div>
+    </div>`;
+
+  const download = (blob, name) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+
+  v.querySelector('#stExpJson').onclick = () => {
+    download(new Blob([JSON.stringify(state, null, 2)], { type:'application/json' }),
+      `sauvegarde-firewise-${todayISO()}.json`);
+    toast('Sauvegarde exportée.', true);
+  };
+  const fileInput = v.querySelector('#stFile');
+  v.querySelector('#stImpJson').onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    const f = fileInput.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try{
+        const d = JSON.parse(rd.result);
+        if(!d || !Array.isArray(d.sites) || !Array.isArray(d.equipment)) throw new Error('format');
+        state = {
+          sites:d.sites,
+          buildings: Array.isArray(d.buildings) ? d.buildings : [],
+          equipment:d.equipment,
+          reports:Array.isArray(d.reports) ? d.reports : [],
+          catalog:Array.isArray(d.catalog) ? d.catalog : [],
+        };
+        save(); render(); toast('Sauvegarde importée.', true);
+      }catch(e){ toast('Fichier invalide : import annulé.'); }
+    };
+    rd.readAsText(f);
+  };
+  v.querySelector('#stExpCsv').onclick = () => {
+    const rows = [['Site','Bâtiment','Type','Marque','Référence','N° série','Localisation','Mise en service','État','Photo']];
+    state.equipment.forEach(e => {
+      const s = state.sites.find(x => x.id === e.siteId);
+      const b = state.buildings.find(x => x.id === e.buildingId);
+      rows.push([s?s.name:'', b?b.name:'', typeLabel(e.type), e.brand||'', e.model||'', e.serial||'',
+        e.loc||'', e.mes||'', STATUS[e.status]||'', e.photo ? 'oui' : 'non']);
+    });
+    const csv = '\uFEFF' + rows.map(rw => rw.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+    download(new Blob([csv], { type:'text/csv;charset=utf-8' }), `registre-ssi-${todayISO()}.csv`);
+    toast('Registre exporté en CSV.', true);
+  };
+  v.querySelector('#stDemo').onclick = () => {
+    confirmBox('Jeu de démonstration', 'Charger les données de démonstration SSI ? Elles remplaceront les données actuelles de cet appareil.', () => {
+      state = { sites:[], buildings:[], equipment:[], reports:[], catalog:[] };
+      seedDemo(); ui.siteId = null; ui.buildingId = null; ui.reportId = null;
+      render(); toast('Jeu de démonstration chargé.', true);
+    });
+  };
+  v.querySelector('#stReset').onclick = () => {
+    confirmBox('Tout effacer', 'Cette action supprime <b>définitivement</b> toutes les données locales (y compris le catalogue et les photos). Continuer ?', () => {
+      try{ localStorage.removeItem(LS_KEY); }catch(e){}
+      state = { sites:[], buildings:[], equipment:[], reports:[], catalog:[] };
+      ui.siteId = null; ui.buildingId = null; ui.reportId = null;
+      render(); toast('Toutes les données ont été effacées.', true);
+    });
+  };
+}
+
+/* ---------- 15. Démarrage ---------- */
+try{
+  if(!load()) seedDemo();
+  render();
+}catch(e){
+  const v = document.getElementById('view');
+  const msg = String((e && e.message) || e)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if(v) v.innerHTML = '<div class="empty" style="padding:60px 20px"><b>Erreur au démarrage</b>'
+    + '<p style="color:#c1272d;font-family:monospace;font-size:12px;white-space:pre-wrap;text-align:left">' + msg + '</p>'
+    + '<p>Rechargez la page. Si le problème persiste, ouvrez la console (F12) '
+    + 'ou tapez <code>localStorage.clear()</code> dans la console puis rechargez.</p></div>';
+  console.error('Firewise startup error:', e);
+}
+
+/* ===== FIN DE settings.js ===== */
+</script>
+
+<!-- Diagnostic de démarrage : si render() n'a pas remplacé bootMsg, un script externe a échoué. -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  if(document.getElementById('bootMsg')){
+    var failed = window.__fwFailed || [];
+    var v = document.getElementById('view');
+    var list = failed.length
+      ? '<p style="margin:12px 0">Fichier(s) en échec : <code style="background:#f2f1ef;padding:2px 6px;border-radius:4px">' + failed.join(', ') + '</code></p>'
+      : '<p style="margin:12px 0">Aucun fichier .js n\'a pu être chargé — ouvrez index.html depuis son dossier complet.</p>';
+    v.innerHTML = '<div style="padding:40px 24px;max-width:600px;margin:0 auto;font-family:system-ui,sans-serif">'
+      + '<h2 style="color:#c1272d;margin:0 0 8px">L\'application n\'a pas pu démarrer</h2>'
+      + '<p style="color:#666;margin:0 0 4px">Un ou plusieurs scripts JavaScript n\'ont pas pu se charger.</p>'
+      + list
+      + '<p style="line-height:1.7;margin:14px 0 4px"><b>Vérifiez que :</b></p>'
+      + '<ul style="line-height:1.9;padding-left:20px;margin:4px 0">'
+      + '<li>Vous ouvrez <code>index.html</code> depuis son dossier, avec les 9 fichiers <code>.js</code> et <code>style.css</code>.</li>'
+      + '<li>Aucun fichier n\'a été oublié au téléchargement ou à la copie.</li>'
+      + '<li>Votre navigateur autorise les scripts locaux (Chrome, Firefox, Edge).</li>'
+      + '</ul>'
+      + '<p style="margin-top:14px;line-height:1.6;color:#666">Détail des erreurs dans la console : <b>F12</b> → onglet « Console ».</p>'
+      + '</div>';
+  }
+});
+</script>
+
+<!-- Bibliothèques externes via CDN, chargées en arrière-plan (defer = non bloquant).
+     L'application fonctionne sans elles ; seules les signatures et les exports
+     PDF/Word nécessitent une connexion internet au premier usage. -->
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js" defer></script>
+</body>
+</html>
