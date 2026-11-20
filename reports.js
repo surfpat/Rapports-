@@ -74,12 +74,22 @@ function reportSheetHTML(r){
   const batteries = (r.batteries || []);
   const resColor = { conforme:'#2e7d4f', surveil:'#a86a08', nonconforme:'#c1272d', remplacer:'#c1272d' };
   const resCell = res => `<td style="color:${resColor[res]||'#333'};font-weight:${res?'600':'400'}">${esc(TEST_RESULTS[res]||BATTERY_RESULTS[res]||'—')}</td>`;
+  const profile = REPORT_PROFILES[r.type] || REPORT_PROFILES.maintenance;
+  const typeLabel = (REPORT_TYPES[r.type]||'') + (profile.label && profile.label !== REPORT_TYPES[r.type] ? '' : '');
+  // Helper : section avec contenu (vide si non pertinent)
+  const sec = (title, bodyHTML, opts = {}) => {
+    if(opts.skipIfEmpty && !bodyHTML.trim()) return '';
+    return `<div class="rp-sec"><h3>${title}</h3>${bodyHTML}</div>`;
+  };
+  const para = (txt, empty = '—') => `<p>${esc(txt) || `<span class="rp-empty">${empty}</span>`}</p>`;
+
   return `
   <div class="rp">
     <div class="rp-head">
       <div class="rp-brand"><span class="rp-mark"></span>FIREWISE — EQUIPMENT CARE</div>
       <div class="rp-doc">
         <div class="rp-title">RAPPORT D’INTERVENTION SSI</div>
+        <div class="rp-type">${esc(REPORT_TYPES[r.type]||'')}</div>
         <div class="rp-no">N° ${esc(r.no)}</div>
       </div>
     </div>
@@ -87,23 +97,25 @@ function reportSheetHTML(r){
       <tr><th>Type</th><td>${esc(REPORT_TYPES[r.type]||'')}</td><th>Date</th><td>${fmtDate(r.date)}</td><th>Technicien</th><td>${esc(r.tech||'')}</td></tr>
       <tr><th>Objet</th><td colspan="5">${esc(reportObjet(r))}</td></tr>
     </table>
-    <div class="rp-sec"><h3>Matériel concerné & tests</h3>
-      ${tests.length ? `<table class="rp-pieces">
+    ${tests.length ? sec('Matériel concerné & tests', `<table class="rp-pieces">
         <tr><th>Matériel</th><th style="width:90px">Résultat</th><th>Observation</th></tr>
         ${tests.map(t => `<tr><td>${esc(t.label)||'—'}</td>${resCell(t.res)}<td>${esc(t.note)||'—'}</td></tr>`).join('')}
-      </table>` : '<p>Aucun matériel concerné.</p>'}
-    </div>
-    <div class="rp-sec"><h3>Observations / constat</h3><p>${esc(r.obs) || '—'}</p></div>
-    <div class="rp-sec"><h3>Anomalies constatées</h3><p>${esc(r.anomalies) || 'Aucune anomalie relevée.'}</p></div>
-    <div class="rp-sec"><h3>Actions réalisées</h3><p>${esc(r.actions) || '—'}</p></div>
-    <div class="rp-sec"><h3>Pièces remplacées</h3>
-      ${pieces.length ? `<table class="rp-pieces">
+      </table>`) : ''}
+    ${(profile.sections.includes('reception')) ? sec('Réception d’installation', para(r.reception, 'Non renseignée.')) : ''}
+    ${(profile.sections.includes('diagnostic')) ? sec('Diagnostic', para(r.diagnostic, 'Aucun défaut signalé.')) : ''}
+    ${(profile.sections.includes('diagnostic') && r.diag2) ? sec('Analyse & origine', para(r.diag2)) : ''}
+    ${(profile.sections.includes('reglages')) ? sec('Réglages & paramétrage', para(r.reglages, 'Non renseignés.')) : ''}
+    ${(profile.sections.includes('controle')) ? sec('Contrôles & essais', para(r.obs, '—')) : ''}
+    ${(profile.sections.includes('rondes')) ? sec('Rondes & contrôles visuels', para(r.obs, '—')) : ''}
+    ${(profile.sections.includes('obs')) ? sec('Observations / constat', para(r.obs, '—')) : ''}
+    ${sec('Anomalies constatées', para(r.anomalies, 'Aucune anomalie relevée.'))}
+    ${sec('Actions réalisées', para(r.actions, '—'))}
+    ${sec('Pièces remplacées',
+      pieces.length ? `<table class="rp-pieces">
         <tr><th>Désignation</th><th>Référence</th><th style="width:60px">Qté</th></tr>
         ${pieces.map(p => `<tr><td>${esc(p.d)}</td><td>${esc(p.r||'—')}</td><td>${esc(p.q||'—')}</td></tr>`).join('')}
-      </table>` : '<p>Aucune pièce remplacée.</p>'}
-    </div>
-    <div class="rp-sec"><h3>Mesures batteries</h3>
-      ${batteries.length ? `<table class="rp-pieces">
+      </table>` : '<p class="rp-empty">Aucune pièce remplacée.</p>')}
+    ${batteries.length ? sec('Mesures batteries', `<table class="rp-pieces">
         <tr><th>Matériel</th><th>Batterie</th><th>Mesures (I · U t0→1 h)</th><th>Autonomie / capacité</th><th>Résultat</th><th>Observation</th></tr>
         ${batteries.map(b => {
           const batTxt = [b.cnom ? b.cnom + ' Ah' : '', b.unom ? b.unom + ' V' : ''].filter(Boolean).join(' · ') || '—';
@@ -111,10 +123,10 @@ function reportSheetHTML(r){
           const capTxt = [b.aut ? b.aut + ' h' : '', b.areq ? '/ ' + b.areq + ' h requis' : '', b.cmes ? '· ' + b.cmes + ' % restant' : ''].filter(Boolean).join(' ') || '—';
           return `<tr><td>${esc(b.mat)||'—'}</td><td>${esc(batTxt)}</td><td>${esc(testTxt)}</td><td>${esc(capTxt)}</td>${resCell(b.res)}<td>${esc(b.note)||'—'}</td></tr>`;
         }).join('')}
-      </table>` : '<p>Aucune mesure de batterie relevée.</p>'}
-    </div>
-    <div class="rp-sec"><h3>Recommandations</h3><p>${esc(r.reco) || '—'}</p></div>
-    <div class="rp-sec"><h3>Prochaine visite</h3><p>${r.nextVisit ? fmtDate(r.nextVisit) : 'Non planifiée.'}</p></div>
+      </table>`) : ''}
+    ${(profile.sections.includes('formation')) ? sec('Formation & remise', para(r.formation, 'Aucune formation mentionnée.')) : ''}
+    ${sec('Recommandations', para(r.reco, '—'))}
+    ${sec('Prochaine visite', `<p>${r.nextVisit ? fmtDate(r.nextVisit) : '<span class="rp-empty">Non planifiée.</span>'}</p>`)}
     <div class="rp-sigs">
       <div class="rp-sig"><div class="cap">Signature du technicien</div>
         ${r.sigTech ? `<img src="${r.sigTech}" alt="Signature technicien">` : '<span class="none">Non signé</span>'}</div>

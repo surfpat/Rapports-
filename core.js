@@ -99,7 +99,7 @@ const TYPES_EQ = [
   ['clapet','Clapet coupe-feu (gaine)'],
   ['col_sec','Colonne sèche'],
   ['col_charge','Colonne en charge'],
-  ['ria','RIA (robe d’incendie armée)'],
+  ['ria','RIA (Robinet d’incendie armé)'],
   ['autre','Autre matériel SSI'],
 ];
 const typeLabel = v => (TYPES_EQ.find(t => t[0] === v) || ['','Autre'])[1];
@@ -109,16 +109,77 @@ const statusBadge = s => `<span class="badge ${s==='service'?'ok':s==='verif'?'w
 
 const REPORT_TYPES = { maintenance:'Maintenance', depannage:'Dépannage', mise:'Mise en service', journalier:'Rapport journalier' };
 
+/* ---------- 2.b Profils de rapport : sections affichées selon le type ----------
+   Chaque profil déclare :
+   - label, sub  : titre + sous-titre du formulaire
+   - sections    : tableau de clés de section (voir REPORT_SECTIONS ci-dessous)
+   - intro       : texte d'aide affiché en haut du formulaire
+   Le formulaire n'affiche QUE les sections du profil courant → adaptatif. */
+const REPORT_SECTIONS = {
+  // Identification / liaison registre : toujours présente (hors profil)
+  info:        { title:'Informations générales',  ico:'i' },
+  liaison:     { title:'Liaison au registre',     ico:'🔗' },
+  equipement:  { title:'Matériel concerné & tests', ico:'✓', sub:'Cochez le matériel, saisissez le résultat et l’observation sur la même ligne.' },
+  controle:    { title:'Contrôles & essais',     ico:'⚡', sub:'Tests réalisés, mesures, essais fonctionnels.' },
+  batteries:   { title:'Mesures batteries',      ico:'🔋', sub:'Protocole NF S 61-930 — autonomie & capacité.' },
+  diagnostic:  { title:'Diagnostic',             ico:'🔍', sub:'Cause, origine, analyse du défaut.' },
+  actions:     { title:'Actions réalisées',      ico:'🛠', sub:'Intervention, réglages, remise en service.' },
+  pieces:      { title:'Pièces remplacées',      ico:'⚙' },
+  reception:   { title:'Réception d’installation', ico:'📋', sub:'État à réception, vérifications initiales.' },
+  reglages:    { title:'Réglages & paramétrage', ico:'🎚', sub:'Configuration saisie, seuils, reports.' },
+  formation:   { title:'Formation & remise',    ico:'📚', sub:'Formation utilisateur, documents remis.' },
+  rondes:      { title:'Rondes & contrôles visuels', ico:'👁', sub:'États observés au cours de la journée.' },
+  obs:         { title:'Observations / constat', ico:'📝' },
+  anomalies:   { title:'Anomalies constatées',   ico:'⚠' },
+  reco:        { title:'Recommandations',        ico:'💡' },
+  nextVisit:   { title:'Prochaine visite',       ico:'📅' },
+  signatures:  { title:'Signatures',             ico:'✍' },
+};
+
+const REPORT_PROFILES = {
+  maintenance: {
+    label:'Maintenance préventive',
+    sub:'Contrôle périodique réglementaire du matériel SSI',
+    sections:['info','liaison','equipement','controle','batteries','obs','anomalies','actions','pieces','reco','nextVisit','signatures'],
+    intro:'Maintenance périodique — relevez le résultat des contrôles par matériel, les anomalies et les actions correctives.',
+  },
+  depannage: {
+    label:'Dépannage',
+    sub:'Intervention corrective suite à un défaut signalé',
+    sections:['info','liaison','equipement','diagnostic','actions','pieces','controle','batteries','obs','anomalies','reco','nextVisit','signatures'],
+    intro:'Dépannage — décrivez le défaut signalé, le diagnostic, l’intervention et le résultat après remise en service.',
+  },
+  mise: {
+    label:'Mise en service',
+    sub:'Réception et mise en service d’une installation neuve ou modifiée',
+    sections:['info','liaison','reception','equipement','reglages','controle','batteries','obs','formation','reco','nextVisit','signatures'],
+    intro:'Mise en service — réceptionnez l’installation, saisissez les réglages et les essais, puis la formation remise.',
+  },
+  journalier: {
+    label:'Rapport journalier',
+    sub:'Rondes et contrôles visuels de la journée',
+    sections:['info','liaison','rondes','obs','anomalies','actions','reco','signatures'],
+    intro:'Rapport journalier — consignez les rondes, les événements de la journée et les actions éventuelles.',
+  },
+};
+
+/* Types de matériel impliquant une batterie de secours (section batteries pertinente) */
+const BATTERY_EQ_TYPES = ['cds','cmsi','uga','ta','exgaz_cen','exgaz_bout','sprk'];
+
 /* ---------- 3. État & persistance ---------- */
 let state = { sites:[], buildings:[], equipment:[], reports:[], catalog:[] };
 let ui = { view:'dashboard', siteId:null, buildingId:null, reportId:null, q:'', typeFilter:'' };
 
 function save(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); return true; }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
   catch(e){
     toast('Enregistrement impossible : stockage local saturé. La modification ne sera pas conservée après rechargement — exportez une sauvegarde JSON puis nettoyez les photos.');
     return false;
   }
+  // Hook de synchronisation cloud (défini dans sync.js, chargé avant settings.js).
+  // Garde-fou : si sync.js n'est pas chargé, on ne fait rien.
+  if(typeof onSyncSave === 'function') onSyncSave();
+  return true;
 }
 function load(){
   try{

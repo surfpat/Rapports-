@@ -61,6 +61,9 @@ function exportDOCX(reportId){
   const pieces = (r.pieces || []);
   const tests = (r.tests || []);
   const batteries = (r.batteries || []);
+  const profile = REPORT_PROFILES[r.type] || REPORT_PROFILES.maintenance;
+  const secHas = k => profile.sections.includes(k);
+  const paraOr = (t, empty) => para(t || empty);
 
   const piecesTable = new D.Table({
     width: { size: 100, type: D.WidthType.PERCENTAGE },
@@ -105,20 +108,29 @@ function exportDOCX(reportId){
   const children = [
     new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing:{ after: 40 },
       children: [new D.TextRun({ text: "RAPPORT D'INTERVENTION SSI", bold: true, size: 34 })] }),
+    new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing:{ after: 8 },
+      children: [new D.TextRun({ text: REPORT_TYPES[r.type]||'', bold: true, size: 22, color: 'C1272D' })] }),
     new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing:{ after: 240 },
-      children: [new D.TextRun({ text: `${r.no} — ${REPORT_TYPES[r.type]||''}`, bold: true, size: 22, color: 'C1272D' })] }),
+      children: [new D.TextRun({ text: `${r.no}`, bold: true, size: 20, color: '555555' })] }),
     sec('Informations'),
     new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: [
       new D.TableRow({ children: [cell('Date', { head:true, w:16 }), cell(fmtDate(r.date), { w:34 }), cell('Technicien', { head:true, w:16 }), cell(r.tech, { w:34 })] }),
       new D.TableRow({ children: [cell('Objet', { head:true, w:16 }), cell(reportObjet(r))] }),
     ]}),
-    sec('Matériel concerné & tests'), testedTable,
-    sec('Observations / constat'), para(r.obs),
-    sec('Anomalies constatées'), para(r.anomalies || 'Aucune anomalie relevée.'),
-    sec('Actions réalisées'), para(r.actions),
+    ...(tests.length ? [sec('Matériel concerné & tests'), testedTable] : []),
+    ...(secHas('reception') ? [sec('Réception d’installation'), paraOr(r.reception, 'Non renseignée.')] : []),
+    ...(secHas('diagnostic') ? [sec('Diagnostic'), paraOr(r.diagnostic, 'Aucun défaut signalé.'),
+                                 ...(r.diag2 ? [sec('Analyse & origine'), para(r.diag2)] : [])] : []),
+    ...(secHas('reglages') ? [sec('Réglages & paramétrage'), paraOr(r.reglages, 'Non renseignés.')] : []),
+    ...(secHas('controle') ? [sec('Contrôles & essais'), paraOr(r.obs, '—')] : []),
+    ...(secHas('rondes') ? [sec('Rondes & contrôles visuels'), paraOr(r.obs, '—')] : []),
+    ...(secHas('obs') ? [sec('Observations / constat'), paraOr(r.obs, '—')] : []),
+    sec('Anomalies constatées'), paraOr(r.anomalies, 'Aucune anomalie relevée.'),
+    sec('Actions réalisées'), paraOr(r.actions, '—'),
     sec('Pièces remplacées'), piecesTable,
-    sec('Mesures batteries'), batteriesTable,
-    sec('Recommandations'), para(r.reco),
+    ...(batteries.length ? [sec('Mesures batteries'), batteriesTable] : []),
+    ...(secHas('formation') ? [sec('Formation & remise'), paraOr(r.formation, 'Aucune formation mentionnée.')] : []),
+    sec('Recommandations'), paraOr(r.reco, '—'),
     sec('Prochaine visite'), para(r.nextVisit ? fmtDate(r.nextVisit) : 'Non planifiée.'),
     sec('Signatures'),
     new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, rows: [
