@@ -241,12 +241,32 @@ function openReportForm(reportId){
     if(existingData) pad.fromDataURL(existingData, { ratio:1 });
     return pad;
   }
-  // Les signatures ne sont initialisées que si la section est rendue
+  // Les signatures ne sont initialisées que si la section est rendue.
+  // IMPORTANT : la section « signatures » démarre repliée (display:none sur
+  // .acc-body). Or initPad() lit getBoundingClientRect() pour dimensionner le
+  // canvas : si on initialise pendant que la section est fermée, le canvas
+  // reste à 0×0 et le tracé n'est jamais capturé (la signature est perdue).
+  // On initialise donc paresseusement, au moment où l'utilisateur ouvre la
+  // section — le canvas a alors sa vraie taille.
   if(sections.includes('signatures')){
-    setTimeout(() => {
-      pads.tech = initPad('sigTech', r.sigTech);
-      pads.client = initPad('sigClient', r.sigClient);
-    }, 60);
+    const sigSec = [...modalBox.querySelectorAll('.acc-sec')].find(s => s.dataset.sec === 'signatures');
+    function ensureSigPads(){
+      // Préserve le tracé déjà saisi (section rouverte) ou la signature existante.
+      const techData   = (pads.tech   && !pads.tech.isEmpty())   ? pads.tech.toDataURL('image/png')   : r.sigTech;
+      const clientData = (pads.client && !pads.client.isEmpty()) ? pads.client.toDataURL('image/png') : r.sigClient;
+      pads.tech   = initPad('sigTech', techData);
+      pads.client = initPad('sigClient', clientData);
+    }
+    if(sigSec){
+      const head = sigSec.querySelector('.acc-head');
+      // wireAccordion a basculé .open via head.onclick ; on agit ensuite, une
+      // fois la section visible (le canvas a alors sa vraie taille).
+      head.addEventListener('click', () => {
+        setTimeout(() => { if(sigSec.classList.contains('open')) ensureSigPads(); }, 0);
+      });
+      // Section ouverte dès le départ (cas d'erreur) : on initialise tout de suite.
+      if(sigSec.classList.contains('open')) ensureSigPads();
+    }
     modalBox.querySelector('#clearTech').onclick = () => pads.tech && pads.tech.clear();
     modalBox.querySelector('#clearClient').onclick = () => pads.client && pads.client.clear();
   }
@@ -633,8 +653,8 @@ function openReportForm(reportId){
       pieces,
       tests: typeof collectTests === 'function' ? collectTests() : [],
       batteries: typeof collectBatteries === 'function' ? collectBatteries() : [],
-      sigTech:(pads.tech && !pads.tech.isEmpty()) ? pads.tech.toDataURL('image/png') : null,
-      sigClient:(pads.client && !pads.client.isEmpty()) ? pads.client.toDataURL('image/png') : null,
+      sigTech:(pads.tech && !pads.tech.isEmpty()) ? pads.tech.toDataURL('image/png') : (r.sigTech || null),
+      sigClient:(pads.client && !pads.client.isEmpty()) ? pads.client.toDataURL('image/png') : (r.sigClient || null),
     };
 
     if(r.id){
